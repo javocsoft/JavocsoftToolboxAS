@@ -44,26 +44,14 @@ Greetings and i hope it will save time in your projects as it does for me.
 
 ##Project Integration##
 
-This is an Eclipse Android Library project. To integrate in your project avoiding any issues with support libraries, follow these steps:  
+This is an Android Studio Library project. To integrate in your project avoiding any issues with support libraries, follow these steps:
 
-1. Remove, if there is one, the project "appcompat7" that Eclipse creates by default in your workspace.
-2. Open Eclipse and import these projects into your workspace:
-	1. Android v7 support library project (located in "<android_sdk>\extras\android\support\v7". You can install through the Android SDK Manager).
-	2. Android Google Play Services library project (located in "<android_sdk>\extras\google\google_play_services\libproject\google-play-services_lib". You can install through the Android SDK Manager)
-	3. Facebook SDK library project:
-		1. Download it from <a href="https://developers.facebook.com/docs/android/downloads/">Facebook SDK</a>
-		2. Import the library project located in "<fb_sdk_folder>\facebook".
-3. Clone from GitHub "javocsoft_toolbox" library and import into your workspace.
-4. Copy from the Android v7 Android Support library the file "android-support-v4.jar" in the "libs" folder to the lib folder of:
-	1. javocsoft_toolbox library project
-	2. FacebookSDK library project.
-	3. Your project.
+1. Open Android Studio and clone the project "JavocsoftToolboxAS" from GitHub (https://github.com/javocsoft/JavocsoftToolboxAS.git).
 
-Internally it also uses some other libraries like GSON, json_simple and commons-codec. These are included in the libs folder. 
 
 ##LICENSE##
 
-Copyright 2010-2015 JavocSoft.
+Copyright 2010-2017 JavocSoft.
 
 JavocSoft Android Toolbox is free software: you can redistribute it 
 and/or modify it under the terms of the GNU General Public License as 

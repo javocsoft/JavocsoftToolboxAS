@@ -2,9 +2,12 @@
 *.apk
 *.ap_
 
+<<<<<<< HEAD
 #Mac
 .DS_Store
 
+=======
+>>>>>>> d15b07c0769648bd3b9e54591f9677655ead4b3d
 # Files for the ART/Dalvik VM
 *.dex
 
@@ -37,8 +40,11 @@ captures/
 
 # Intellij
 *.iml
+<<<<<<< HEAD
 *.iws
 .idea/vcs.xml
+=======
+>>>>>>> d15b07c0769648bd3b9e54591f9677655ead4b3d
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/gradle.xml

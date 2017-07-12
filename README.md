@@ -44,9 +44,12 @@ Greetings and i hope it will save time in your projects as it does for me.
 
 ##Project Integration##
 
-This is an Android Studio Library project. To integrate in your project avoiding any issues with support libraries, follow these steps:
+This is an Android Studio Library project. To integrate in your project just put in your gradle
+build:
 
-1. Open Android Studio and clone the project "JavocsoftToolboxAS" from GitHub (https://github.com/javocsoft/JavocsoftToolboxAS.git).
+compile 'es.javocsoft:toolbox:1.0.1'
+
+You can also clone the project "JavocsoftToolboxAS" from GitHub (https://github.com/javocsoft/JavocsoftToolboxAS.git).
 
 
 ##LICENSE##

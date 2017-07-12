@@ -98,8 +98,7 @@ public class Mezzenger {
 	 * 
 	 * We have to provide the messenger service ACTION.
 	 * 
-	 * @param context	
-	 * @param action	The action name to initialize the communication 
+	 * @param action	The action name to initialize the communication
 	 * 					with the Messenger.
 	 */
 	public void connect(final String action) {

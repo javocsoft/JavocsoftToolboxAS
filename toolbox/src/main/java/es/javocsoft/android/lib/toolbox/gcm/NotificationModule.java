@@ -58,6 +58,8 @@ import es.javocsoft.android.lib.toolbox.gcm.exception.GCMException;
  * + Notification ACKs
  * 			
  * See:  https://developer.android.com/google/gcm/client.html
+ *
+ * NOTE: Requires the permissions com.google.android.c2dm.permission.RECEIVE
  * 
  * @author javocSoft 2013.
  * @since  2013
@@ -67,7 +69,7 @@ public class NotificationModule {
 
 	/** Enables or disables the log. */
 	public static boolean LOG_ENABLE = true;
-	public static final String TAG = "javocsoft-toolbox: NotificationModule";
+	public static final String TAG = "JavocsoftToolbox:PushM";
 
 	private static NotificationModule instance = null;
 	
@@ -351,7 +353,8 @@ public class NotificationModule {
 				ToolBox.prefs_savePreference(context, GCM_PREF_NAME, GCM_PREF_KEY_UNREG_ERROR_CODE, Integer.class, e.errorCode);				
 			}			
 		}
-		
+
+		@SuppressWarnings({"MissingPermission"})
 		private void doUnRegistration() throws GCMException {
 			String regId = getRegistrationId(context);
 			if(regId!=null && regId.length()>0){
@@ -401,7 +404,8 @@ public class NotificationModule {
 				ToolBox.prefs_savePreference(context, GCM_PREF_NAME, GCM_PREF_KEY_REG_ERROR_CODE, Integer.class, e.errorCode);				
 			}	
 		}
-		
+
+		@SuppressWarnings({"MissingPermission"})
 		private void doRegistration() throws GCMException {			
 			
 			try {

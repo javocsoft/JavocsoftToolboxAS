@@ -51,7 +51,7 @@ import android.util.Log;
  * as SecureRandom, KeyGenerator, KeyPairGenerator, KeyAgreement, and 
  * Signature.<br><br>
  * 
- * See {@link http://android-developers.blogspot.com.es/2013/08/some-securerandom-thoughts.html}
+ * See <a href="http://android-developers.blogspot.com.es/2013/08/some-securerandom-thoughts.html">Securerandom Thoughts</a>
  * <br><br><br>
  * 
  * Notes:<br><br>

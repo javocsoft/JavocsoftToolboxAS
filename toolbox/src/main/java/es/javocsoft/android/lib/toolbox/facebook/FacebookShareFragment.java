@@ -139,7 +139,7 @@ public class FacebookShareFragment extends Fragment {
 	 * @param onLogoutCallback	What to do when a logout happens, {@link OnLogoutActionCallback}
 	 * @param onShareSuccessCallback	What to do when a share happens, {@link OnShareSuccessActionCallback}
 	 * @param onShareFailCallback	What to do when a share fails, {@link OnShareFailActionCallback}
-	 * @param onShareCancelledCallback What to do when a share is cancelled, {@link onShareCancelledCallback}}
+	 * @param onShareCancelledCallback What to do when a share is cancelled, {@link OnShareCancelledActionCallback}
 	 */
 	public void initialize(String applicationName, String caption, 
 							String description, String link, String pictureURL,

@@ -62,7 +62,7 @@ public class SMSObserver extends ContentObserver {
     private static int initialPos;
     /** Enables or disables the log. */
     public static boolean LOG_ENABLE = true;
-    private static final String TAG = "javocsoft-toolbox: SMSObserver";
+    private static final String TAG = "JavocsoftToolbox:SMSObs";
     private static final Uri uriSMS = Uri.parse("content://sms/");
     
     private SMSRunnableTask msgReceivedCallback;

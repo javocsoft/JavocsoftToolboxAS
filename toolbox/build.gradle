@@ -1,8 +1,18 @@
+//https://developer.android.com/studio/projects/android-library.html
 apply plugin: 'com.android.library'
 
-android {
-    //https://developer.android.com/studio/projects/android-library.html
+//For upload to Maven repository using JFROG
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: "com.jfrog.bintray"
+// This is the library version used when deploying the artifact
+// (change to a new version every new library release)
+//
+// 1.- Change version to a new one.
+version = "1.0.1"
+// 1.- First run "Gradle->Other->Install" to generate Maven stuff.
+// 2.- Second, execute "Gradle->Publishing->bintrayUpload" to upload the library to JCenter
 
+android {
     compileSdkVersion 26
     buildToolsVersion "26.0.0"
 
@@ -11,17 +21,28 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
-
+        //multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
+        //signingConfig signingConfigs.config
     }
     buildTypes {
         release {
             minifyEnabled false
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
+    /*
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'LICENSE.txt'
+    }*/
+
+    // To use old Apache Http Client
     useLibrary 'org.apache.http.legacy'
 }
 
@@ -31,11 +52,15 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
+    // Google Play compatibility support library
     compile 'com.android.support:appcompat-v7:+'
 
     // Google Play services SDK
+    // (https://developers.google.com/android/guides/overview)
     // (https://developers.google.com/android/guides/releases)
     // (https://developers.google.com/android/guides/setup#Install)
+    // (https://developers.google.com/android/reference/packages)
+    // GoogleApiClient: https://developers.google.com/android/reference/com/google/android/gms/common/api/GoogleApiClient
     compile 'com.google.android.gms:play-services-analytics:11.0.2'
     compile 'com.google.android.gms:play-services-gcm:11.0.2'
     compile 'com.google.android.gms:play-services-drive:11.0.2'
@@ -43,16 +68,124 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:11.0.2'
     compile 'com.google.android.gms:play-services-ads:11.0.2'
     compile 'com.google.android.gms:play-services-places:11.0.2'
-    compile 'com.google.android.gms:play-services-auth:11.0.2'
+    //compile 'com.google.android.gms:play-services-auth:11.0.2'
+
 
     //Facebook SDK
     // (https://developers.facebook.com/docs/android/getting-started?locale=es_ES)
     compile group: 'com.facebook.android', name: 'facebook-android-sdk', version: '3.20.0'
 
+    // Other external libraries required
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.1'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.5'
 
     testCompile 'junit:junit:4.12'
+
+    // Testing-only dependencies
+    // Force usage of support annotations in the test app, since it is internally used by the runner module.
+    /*androidTestCompile 'com.android.support:support-annotations:23.1.1'
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.1'
+    androidTestCompile 'com.android.support:support-annotations:23.1.1'*/
 }
 
+// Configuration to be able to generate POM file and upload to JCenter
+def siteUrl = 'https://github.com/javocsoft/JavocsoftToolboxAS'      // Homepage URL of the library
+def gitUrl = 'https://github.com/javocsoft/JavocsoftToolboxAS.git'   // Git repository URL
+group = "es.javocsoft"                                               // Maven Group ID for the artifact
+
+// POM & Maven
+// Run "Gradle->Other->Install to execute this code."
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                artifactId 'toolbox'
+
+                // Add your description here
+                name 'es.javocsoft:javocsofttoolbox'
+                description = 'Android library that includes modeles and a toolbox class to save time when developing applications in Android.'
+                url siteUrl
+
+                // Set your license
+                licenses {
+                    license {
+                        name 'GNU General Public License v3.0'
+                        url 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'javocsoft'
+                        name 'Javier Gonzalez Serrano'
+                        email 'javocsoft@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+/*
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+    //destinationDir = file("mvnartifacts/")
+    //failOnError false
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    //destinationDir = file("./mvnartifacts/")
+    //failOnError true
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}*/
+
+//Load properties of the project
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+// Configuration to upload to JCenter
+// https://github.com/bintray/gradle-bintray-plugin
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        // it is the name that appears in bintray when logged
+        name = "es.javocsoft:javocsofttoolbox"
+        desc = "It is an Android commons utility library. For HowTo and usage see the WiKi https://github.com/javocsoft/javocsoft-toolbox/wiki. This library contains a set of useful functions, classes and modules ready to use. This project is a library for Android. While i was making my own projects i always tried to reuse the written code so i created this library. It was very useful so i decided to share it with all. The idea beyond is to make easier programming for Android :) Contains a set of utility classes, the most important called \"ToolBox\", with a set of quite large collection of different functions ready to be used just by including this library in your project."
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["gpl-3.0"]
+        publish = true
+        publicDownloadNumbers = true
+        version {
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+                passphrase = properties.getProperty("bintray.gpg.password") //Optional. The passphrase for GPG signing'
+            }
+        }
+    }
+}
+
+// We put at the end to avoid version conflicts with JCenter and Maven plugins.
 apply plugin: 'com.google.gms.google-services'

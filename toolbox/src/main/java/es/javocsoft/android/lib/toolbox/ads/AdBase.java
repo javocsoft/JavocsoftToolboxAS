@@ -48,8 +48,11 @@ public class AdBase extends Fragment {
     /**
      * Prepares an AdMob BANNER request.
      *
+     * NOTE: Requires the permissions INTERNET.
+     *
      * @param adView
      */
+    @SuppressWarnings({"MissingPermission"})
     protected void bannerAdRequest(AdView adView){
         AdRequest adRequest = requestAdBanner();
         if(adRequest!=null)

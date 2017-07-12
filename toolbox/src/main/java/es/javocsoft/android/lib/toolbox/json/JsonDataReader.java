@@ -83,7 +83,7 @@ public class JsonDataReader {
 	 * Gets the JsonObject for the specified element name. The desired object
 	 * could be a valid json object or an object in string format inside the JSON.
 	 * 
-	 * @param elementName
+	 * @param name The element name
 	 * @return	The JsonObject or null if element does not exists or is not a
 	 * 			JsonObject.
 	 */
@@ -125,7 +125,7 @@ public class JsonDataReader {
 	/**
 	 * Gets the JsonElement for the specified element name. 
 	 * 
-	 * @param elementName
+	 * @param name The element name.
 	 * @return
 	 */
 	public JsonElement getJsonElement(String name) throws JsonDataException {

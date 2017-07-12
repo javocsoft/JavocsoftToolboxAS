@@ -1670,7 +1670,7 @@ public final class ToolBox {
 	 * 
 	 * @param context	The application context.
 	 * @param packageName	The application package to check.
-	 * @param signatureType	See {@link ToolBox#HASH_TYPE}
+	 * @param signatureType	See {@link HASH_TYPE}
 	 * @param expectedSignature	The expected application signature.
 	 * @return	Return TRUE if the application has the expected signature, otherwise FALSE.
 	 * 
@@ -4671,9 +4671,9 @@ public final class ToolBox {
 		
 		return res;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param context
 	 * @param dataUrl
 	 * @param bufferSize

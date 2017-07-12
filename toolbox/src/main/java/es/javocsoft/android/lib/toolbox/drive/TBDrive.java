@@ -117,7 +117,7 @@ import es.javocsoft.android.lib.toolbox.drive.listener.TBDriveEventService;
 public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener {
 
-	public static final String TAG = "ToolBox::BaseDriveActivity";
+	public static final String TAG = "ToolBox::Drive";
 	
 	public static final int ERROR_FILE_NOT_FOUND = -1;
 	public static final int ERROR_FILE_SEARCH = -2;
@@ -179,8 +179,13 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 	}
 
 	/**
-	 * 
-	 * @param context
+	 * Creates an instance of Drive helper.
+	 *
+	 * @param activity
+	 * @param onConnFailureCallback
+	 * @param onConnCallback
+	 * @param onConnSuspendedCallback
+	 * @return
 	 */
 	public static TBDrive getInstance(Activity activity, 
 			TBDriveConnectionCallback onConnFailureCallback,
@@ -1576,7 +1581,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 	
 	/**
 	 * Subscribes to a Drive file in order to receive notifications, 
-	 * See {@link ChangeEvents}, whenever the file is modified, even when the application 
+	 * See {@link com.google.android.gms.drive.events.ChangeEvent}, whenever the file is modified, even when the application
 	 * is not running.<br><br>
 	 * 
 	 * <b>Note</b>:<br>
@@ -1603,7 +1608,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 	
 	/**
 	 * UnSubscribes from Drive file in order to stop receiving notifications, 
-	 * See {@link ChangeEvents}, whenever the file is modified, even when the application 
+	 * See {@link com.google.android.gms.drive.events.ChangeEvent}, whenever the file is modified, even when the application
 	 * is not running.<br><br>
 	 * 
 	 * <b>Note</b>:<br>
@@ -1630,7 +1635,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 	
 	/**
 	 * Subscribes to a Drive file in order to receive notifications, 
-	 * See {@link ChangeEvents}, whenever the file is modified, even when the application 
+	 * See {@link com.google.android.gms.drive.events.ChangeEvent}, whenever the file is modified, even when the application
 	 * is not running.<br><br>
 	 * 
 	 * <b>Note</b>:<br>
@@ -1658,7 +1663,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 	
 	/**
 	 * UnSubscribes from Drive file in order to stop receiving notifications, 
-	 * See {@link ChangeEvents}, whenever the file is modified, even when the application 
+	 * See {@link com.google.android.gms.drive.events.ChangeEvent}, whenever the file is modified, even when the application
 	 * is not running.<br><br>
 	 * 
 	 * <b>Note</b>:<br>

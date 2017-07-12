@@ -29,6 +29,7 @@ import android.util.Log;
 
 import com.google.android.gms.analytics.CampaignTrackingReceiver;
 
+import es.javocsoft.android.lib.toolbox.ToolBox;
 import es.javocsoft.android.lib.toolbox.gcm.NotificationModule;
 
 /**
@@ -64,9 +65,12 @@ import es.javocsoft.android.lib.toolbox.gcm.NotificationModule;
  *          Broadcasting: Intent { act=com.android.vending.INSTALL_REFERRER cmp=es.javocsoft.basetestapp/.CustomCampaignTrackingReceiver (has extras) }
  *          Broadcast completed: result=0
  *
+ *  NOTE: Requires the permissions INTERNET and ACCESS_NETWORK_STATE.
+ *
  *	@author JavocSoft 2014
  * 	@since  2014		
  */
+@SuppressWarnings({"MissingPermission"})
 public class CustomCampaignTrackingReceiver extends BroadcastReceiver {
 
 	
@@ -76,6 +80,7 @@ public class CustomCampaignTrackingReceiver extends BroadcastReceiver {
 	
 	
     @Override
+
     public void onReceive(Context context, Intent intent) {
 
         // Pass the intent to other receivers.
@@ -107,7 +112,7 @@ public class CustomCampaignTrackingReceiver extends BroadcastReceiver {
 
         //Do something if the user specifies.
         if(onCampaignInfoReceivedCallback!=null) {
-        	Log.i("Analytics Campaign Module", "User specified an action for received Campaign information.");
+        	Log.i(ToolBox.TAG, "Analytics Campaign Module: User specified an action for received Campaign information.");
     		
         	onCampaignInfoReceivedCallback.setCampaignData(info);
     		Thread tAck = new Thread(onCampaignInfoReceivedCallback);

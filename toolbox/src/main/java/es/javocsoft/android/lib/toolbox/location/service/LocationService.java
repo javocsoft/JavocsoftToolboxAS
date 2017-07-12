@@ -127,7 +127,10 @@ import es.javocsoft.android.lib.toolbox.ToolBox.LocationInfo;
  * 	http://developer.android.com/guide/topics/location/strategies.html<br>
  *  http://developer.android.com/intl/es/reference/android/location/LocationManager.html<br>
  *  http://developer.android.com/intl/es/reference/android/location/LocationListener.html<br>
- * 
+ *
+ * <br><br>
+ * NOTES: This requires the permission android.permission.ACCESS_COARSE_LOCATION or
+ * android.permission.ACCESS_FINE_LOCATION.
  * 
  * @author JavocSoft 2013
  * @version 2.0<br>
@@ -138,7 +141,7 @@ import es.javocsoft.android.lib.toolbox.ToolBox.LocationInfo;
  */
 public class LocationService extends Service implements LocationListener {
 
-	private static final String TAG = ToolBox.TAG + " : " + "Location Service";
+	private static final String TAG = ToolBox.TAG + ":" + "LocSvc";
 	
 	public static final String LOCATION_SERVICE_PARAM_MIN_DISTANCE = "LOCATION_UPDATE_MIN_DISTANCE";
 	public static final String LOCATION_SERVICE_PARAM_MIN_TIME = "LOCATION_UPDATE_MIN_TIME";
@@ -238,6 +241,7 @@ public class LocationService extends Service implements LocationListener {
 	}
 	
     @Override
+	@SuppressWarnings({"MissingPermission"})
     public void onDestroy() {       
     	Log.d(TAG, "Location service destroyed");
         super.onDestroy();
@@ -253,7 +257,8 @@ public class LocationService extends Service implements LocationListener {
     
     
     //AUXILIAR
-    
+
+	@SuppressWarnings({"MissingPermission"})
     private void doOnStart(Intent intent) {
     	
     	if(intent!=null) {

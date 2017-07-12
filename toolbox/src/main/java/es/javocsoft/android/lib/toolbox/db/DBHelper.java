@@ -64,14 +64,14 @@ public class DBHelper<T extends DBSQLite> {
     protected T mDbHelper;	
 	protected SQLiteDatabase mDatabase;
 	
-	public final long DB_OPERATION_OK = 0;
-	public final long DB_ERROR = -1;
-	public final long DB_ERROR_CLOSED = -2;
-	public final long DB_ERROR_BAD_TYPE = -3;
-	public final long DB_ERROR_BAD_DATA = -4;
-	public final long DB_ERROR_INSERT_DATA = -5;
+	public static final long DB_OPERATION_OK = 0;
+	public static final long DB_ERROR = -1;
+	public static final long DB_ERROR_CLOSED = -2;
+	public static final long DB_ERROR_BAD_TYPE = -3;
+	public static final long DB_ERROR_BAD_DATA = -4;
+	public static final long DB_ERROR_INSERT_DATA = -5;
 	
-	public final int DB_ERROR_UNEXPECTED = -100;
+	public static final int DB_ERROR_UNEXPECTED = -100;
 	
 	/** An SQL query result order types. */
 	public static enum QUERY_ORDER {ASC, DESC};
@@ -255,7 +255,7 @@ public class DBHelper<T extends DBSQLite> {
 	 * @param groupBy	Optional. The group by SQL clause (without the GROUP BY word itself)
 	 * @param having	Optional. The having SQL clause (without the HAVING word itself)
 	 * @param orderBy	Optional. The order by SQL clause (without the ORDER BY word itself)
-	 * @param orderType	Optional. See {@link DBHelper#QUERY_ORDER}.
+	 * @param orderType	Optional. See {@link QUERY_ORDER}.
 	 * @return	A {@link Cursor} object, which is positioned before the first entry. Note that 
 	 * 			Cursors are not synchronized, see the documentation for more details.
 	 */
@@ -290,7 +290,7 @@ public class DBHelper<T extends DBSQLite> {
 	 * @param groupBy	Optional. The group by SQL clause (without the GROUP BY word itself)
 	 * @param having	Optional. The having SQL clause (without the HAVING word itself)
 	 * @param orderBy	Optional. The order by SQL clause (without the ORDER BY word itself)
-	 * @param orderType	Optional. See {@link DBHelper#QUERY_ORDER}.
+	 * @param orderType	Optional. See {@link QUERY_ORDER}.
 	 * @return	A {@link Cursor} object, which is positioned before the first entry. Note that 
 	 * 			Cursors are not synchronized, see the documentation for more details.
 	 */
@@ -317,10 +317,10 @@ public class DBHelper<T extends DBSQLite> {
 	/**
 	 * Inserts an object in the database.
 	 * 
-	 * @param t	Must be of type {@link DBTable}.
+	 * @param o	Must be of type {@link DBTable}.
 	 * @param fieldNames	Optional. If specified, the fields of the table. 
 	 * 						They must be in the same order of t fields.
-	 * @return	Returns {@link DB_OPERATION_OK} in case of no errors, otherwise a
+	 * @return	Returns {@link DBHelper#DB_OPERATION_OK} in case of no errors, otherwise a
 	 * 			number minor than 0 indicating the error. 
 	 */
 	protected long insert(DBTable o, String[] fieldNames) {
@@ -419,7 +419,7 @@ public class DBHelper<T extends DBSQLite> {
 	 * Inserts a list of objects in the database.
 	 * 
 	 * @param oList The list must be a list of objects of type {@link DBTable}.
-	 * @return	Returns {@link DB_OPERATION_OK} in case of no errors, otherwise a
+	 * @return	Returns {@link DBHelper#DB_OPERATION_OK} in case of no errors, otherwise a
 	 * 			number minor than 0 indicating the error. 
 	 */
 	protected long insert(List<DBTable> oList) {
@@ -451,7 +451,7 @@ public class DBHelper<T extends DBSQLite> {
 	 * @param whereColumnNames	The columns for the conditions.
 	 * @param whereValues		The values of the columns in the WHERE clause.
 	 * @param contentValues		The content to update in the table (fields and values). 
-	 * 							See {@link #ContentValues}
+	 * 							See {@link ContentValues}
 	 * @return 	The number of updated rows or a negative value on error.
 	 */
 	public long updateWhere(String tableName, String[] whereColumnNames, String[] whereValues, ContentValues contentValues) {
@@ -476,10 +476,10 @@ public class DBHelper<T extends DBSQLite> {
 	 * updated.
 	 * 
 	 * @param tableName			The table to update
-	 * @param whereColumnNames	The where clause (use ?)
+	 * @param whereClause	The where clause (use ?)
 	 * @param whereValues		The values of the WHERE clause (the values of the "?")
 	 * @param contentValues		The content to update in the table (fields and values). 
-	 * 							See {@link #ContentValues}
+	 * 							See {@link ContentValues}
 	 * @return 	The number of updated rows or a negative value on error.
 	 */
 	public long updateWhere(String tableName, String whereClause, String[] whereValues, ContentValues contentValues) {

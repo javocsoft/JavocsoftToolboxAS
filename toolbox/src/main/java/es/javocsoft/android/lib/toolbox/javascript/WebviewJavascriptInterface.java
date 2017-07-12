@@ -56,7 +56,7 @@ public abstract class WebviewJavascriptInterface {
 	@JavascriptInterface
     public void androidRefresh() {
     	if(ToolBox.LOG_ENABLE)
-    		Log.d(ToolBox.TAG + "::JS[androidRefresh]", "Refresh command send from web.");
+    		Log.d(ToolBox.TAG, "JS[androidRefresh]. Refresh command send from web.");
     	
     	webview.post(new Runnable() {
             public void run() {
@@ -68,7 +68,7 @@ public abstract class WebviewJavascriptInterface {
     @JavascriptInterface
     public void androidAppExit() {
     	if(ToolBox.LOG_ENABLE)
-    		Log.d(ToolBox.TAG + "::JS[androidAppExit]", "Exit command send from web. Finishing app.");
+    		Log.d(ToolBox.TAG, "JS[androidAppExit]. Exit command send from web. Finishing app.");
     	
     	activity.finish();
     }
@@ -93,7 +93,7 @@ public abstract class WebviewJavascriptInterface {
 	    	htmlCode = URLDecoder.decode(htmlRaw, "UTF-8");
 	    }catch(Exception e){}
 	    if(ToolBox.LOG_ENABLE)
-	    	Log.d(ToolBox.TAG + "::JS[getContent]", "Content: " + (htmlCode!=null?htmlCode:"not_available"));
+	    	Log.d(ToolBox.TAG, "JS[getContent]. Content: " + (htmlCode!=null?htmlCode:"not_available"));
 	    
 	    doTaskOnWebviewContent(htmlCode, getOnHTMLContentRunnable());
     }
@@ -146,7 +146,7 @@ public abstract class WebviewJavascriptInterface {
 		try {
 			res = URLEncoder.encode(data, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			Log.e(ToolBox.TAG + "::JS[urlEncode]", "Error encoding to UTF-8 the result for the web [" + e.getMessage() + "]");
+			Log.e(ToolBox.TAG, "JS[urlEncode]. Error encoding to UTF-8 the result for the web [" + e.getMessage() + "]");
 		}
 		
 		return res;

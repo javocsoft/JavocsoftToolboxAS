@@ -2,12 +2,9 @@
 *.apk
 *.ap_
 
-<<<<<<< HEAD
 #Mac
 .DS_Store
 
-=======
->>>>>>> d15b07c0769648bd3b9e54591f9677655ead4b3d
 # Files for the ART/Dalvik VM
 *.dex
 
@@ -39,12 +36,9 @@ proguard/
 captures/
 
 # Intellij
-*.iml
-<<<<<<< HEAD
+# *.iml
 *.iws
 .idea/vcs.xml
-=======
->>>>>>> d15b07c0769648bd3b9e54591f9677655ead4b3d
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/gradle.xml
@@ -52,6 +46,7 @@ captures/
 .idea/libraries
 
 # Keystore files
+ks/
 *.jks
 
 # External native build folder generated in Android Studio 2.2 and later
@@ -64,3 +59,5 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
+.idea/markdown-navigator.xml
+.idea/markdown-navigator/

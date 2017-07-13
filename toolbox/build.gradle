@@ -8,9 +8,10 @@ apply plugin: "com.jfrog.bintray"
 // (change to a new version every new library release)
 //
 // 1.- Change version to a new one.
-version = "1.0.1"
+version = "1.0.3"
 // 1.- First run "Gradle->Other->Install" to generate Maven stuff.
 // 2.- Second, execute "Gradle->Publishing->bintrayUpload" to upload the library to JCenter
+// 3.- Check in https://bintray.com/javocsoft/maven/es.javocsoft%3Ajavocsofttoolbox
 
 android {
     compileSdkVersion 26
@@ -61,15 +62,15 @@ dependencies {
     // (https://developers.google.com/android/guides/setup#Install)
     // (https://developers.google.com/android/reference/packages)
     // GoogleApiClient: https://developers.google.com/android/reference/com/google/android/gms/common/api/GoogleApiClient
+    // compile 'com.google.android.gms:play-services:11.0.2'
     compile 'com.google.android.gms:play-services-analytics:11.0.2'
     compile 'com.google.android.gms:play-services-gcm:11.0.2'
     compile 'com.google.android.gms:play-services-drive:11.0.2'
     compile 'com.google.android.gms:play-services-location:11.0.2'
     compile 'com.google.android.gms:play-services-maps:11.0.2'
     compile 'com.google.android.gms:play-services-ads:11.0.2'
-    compile 'com.google.android.gms:play-services-places:11.0.2'
+    //compile 'com.google.android.gms:play-services-places:11.0.2'
     //compile 'com.google.android.gms:play-services-auth:11.0.2'
-
 
     //Facebook SDK
     // (https://developers.facebook.com/docs/android/getting-started?locale=es_ES)

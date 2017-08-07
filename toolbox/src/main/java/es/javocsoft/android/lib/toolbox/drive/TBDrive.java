@@ -715,7 +715,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
      *  with the same filename/title.
      * 
      * @param fileName	The file name or title of the desired file.
-     * @returns DriveFile The desired file or null if there is none. See
+     * @return DriveFile The desired file or null if there is none. See
      * 					  {@link DriveFile}.
      * 
      */
@@ -831,7 +831,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 	 * 
 	 * @param driveFile	The Drive file
 	 * @param driveFileMetaData	The Drive file metadata, see {@link Metadata}
-	 * @returns Boolean. TRUE if file is trashed ok, otherwise FALSE.
+	 * @return Boolean. TRUE if file is trashed ok, otherwise FALSE.
 	 */
 	public boolean sync_trashFile(final DriveFile driveFile, final Metadata driveFileMetaData) throws TBDriveException {
 		
@@ -919,7 +919,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 	 * 
 	 * @param driveFile	The Drive file
 	 * @param driveFileMetaData	The Drive file metadata, see {@link Metadata}
-	 * @returns Boolean. TRUE if file is un-trashed ok, otherwise FALSE.
+	 * @return Boolean. TRUE if file is un-trashed ok, otherwise FALSE.
 	 */
 	public boolean sync_untrashFile(final DriveFile driveFile, final Metadata driveFileMetaData) 
 			throws TBDriveException {
@@ -1004,7 +1004,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
 	 * @param openMode	The open mode. See {@link DriveFile}
 	 * @param downloadProgressListener	If set, opening progress
 	 * 									information can be show.
-	 * @returns The Drive file contents, see {@link DriveContents}
+	 * @return The Drive file contents, see {@link DriveContents}
 	 */
 	public DriveContents sync_getFileContents(DriveFile driveFile, int openMode, 
 			DownloadProgressListener downloadProgressListener) throws TBDriveException {
@@ -1362,7 +1362,7 @@ public class TBDrive implements GoogleApiClient.ConnectionCallbacks,
      * Search for a file.
      * 
      * @param fileName	The filename/title to search for.
-     * @throws TBDriveFileSearchCallback
+     * @throws TBDriveException
      */
 	public List<FileInfo> sync_search(String fileName) throws TBDriveException {
 		

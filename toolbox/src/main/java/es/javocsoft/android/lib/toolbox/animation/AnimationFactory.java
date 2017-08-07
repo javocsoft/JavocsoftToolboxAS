@@ -39,7 +39,7 @@ import android.widget.ViewAnimator;
  * Furthermore, utility methods are provided for initiating fade-in-then-out and flip animations.
  * 
  * @author Ephraim A. Tekle
- * @modified JavocSoft, 2015
+ * Modified JavocSoft, 2015
  *  	- In some devices (depending also of Android version) the flip effect  		
  * 		  runs laggy. To avoid this behavior, added a a new flipTransition 
  * 		  method that allows to specify to check if the current device is one 
@@ -202,7 +202,7 @@ public class AnimationFactory {
 	 * 
 	 * In some devices, 2K screen devices and some others with Lollipop, the flip 
 	 * animation runs slowly or laggy. To avoid this, device hardware information
-	 * is checked against a list {@see SLOW_FLIP_DEVICES}.
+	 * is checked against a list {@link AnimationFactory#SLOW_FLIP_DEVICES}.
 	 *  
 	 * @param viewAnimator
 	 * @param dir
@@ -229,12 +229,12 @@ public class AnimationFactory {
 	 * 
 	 * In some devices, 2K screen devices and some others with Lollipop, the flip 
 	 * animation runs slowly or laggy. To avoid this, device hardware information
-	 * is checked against a list {@see SLOW_FLIP_DEVICES}.
+	 * is checked against a list {@link AnimationFactory#SLOW_FLIP_DEVICES}.
 	 * 
 	 * @param viewAnimator
 	 * @param dir
 	 * @param checkForLaggyDevices
-	 * @param laggyDevices	Can be null. If null, default {@see SLOW_FLIP_DEVICES} laggy device string list will be used.
+	 * @param laggyDevices	Can be null. If null, default {@link AnimationFactory#SLOW_FLIP_DEVICES} laggy device string list will be used.
 	 * @param enablefadeForLaggyDevices	If set to TRUE, flip effect will occur only
 	 * 																	if the device is not a detected laggy device with
 	 * 																	Flip effect.
@@ -290,7 +290,7 @@ public class AnimationFactory {
 	 * 
 	 * In some devices, 2K screen devices and some others with Lollipop, the flip 
 	 * animation runs slowly or laggy. To avoid this, device hardware information
-	 * is checked against a list {@see SLOW_FLIP_DEVICES}.
+	 * is checked against a list {@link AnimationFactory#SLOW_FLIP_DEVICES}.
 	 * 
 	 * @param viewAnimator
 	 * @param dir
@@ -336,13 +336,13 @@ public class AnimationFactory {
 	 * 
 	 * In some devices, 2K screen devices and some others with Lollipop, the flip 
 	 * animation runs slowly or laggy. To avoid this, device hardware information
-	 * is checked against a list {@see SLOW_FLIP_DEVICES}.
+	 * is checked against a list {@link AnimationFactory#SLOW_FLIP_DEVICES}.
 	 * 
 	 * @param viewAnimator
 	 * @param dir
 	 * @param duration
 	 * @param checkForLaggyDevices
-	 * @param laggyDevices	Can be null. If null, default {@see SLOW_FLIP_DEVICES} laggy device string list will be used.
+	 * @param laggyDevices	Can be null. If null, default {@link AnimationFactory#SLOW_FLIP_DEVICES} laggy device string list will be used.
 	 * @param enablefadeForLaggyDevices	If set to TRUE, flip effect will occur only
 	 * 																	if the device is not a detected laggy device with
 	 * 																	Flip effect.
@@ -606,8 +606,7 @@ public class AnimationFactory {
 	 * 
 	 * @param duration the animation duration in milliseconds
 	 * @param delay how long to wait before starting the animation, in milliseconds
-	 * @return a fade animation
-	 * @see {@link AnimationFactory#fadeInAnimation(long, long)}
+	 * @return a fade animation {@link AnimationFactory#fadeInAnimation(long, long)}
 	 */
 	public static Animation fadeInAnimation(long duration, long delay) {  
 		
@@ -624,8 +623,7 @@ public class AnimationFactory {
 	 * 
 	 * @param duration the animation duration in milliseconds
 	 * @param delay how long to wait before starting the animation, in milliseconds
-	 * @return a fade animation
-	 * @see {@link AnimationFactory#fadeOutAnimation(long, long)}
+	 * @return a fade animation {@link AnimationFactory#fadeOutAnimation(long, long)}
 	 */
 	public static Animation fadeOutAnimation(long duration, long delay) {   
 

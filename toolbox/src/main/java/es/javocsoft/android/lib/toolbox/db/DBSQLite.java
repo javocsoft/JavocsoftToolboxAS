@@ -30,7 +30,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Android application.<br><br>
  * 
  * When using SQLite, extend this class to create your
- * database implementing {@link DBSQLite#doOnCreate 
+ * database implementing {@link DBSQLite#doOnCreate}
  * and {@link DBSQLite#doOnUpgrade}.
  * 
  * See:<br><br>

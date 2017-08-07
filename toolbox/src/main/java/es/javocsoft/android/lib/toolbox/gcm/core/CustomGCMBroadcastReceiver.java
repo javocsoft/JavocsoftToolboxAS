@@ -39,8 +39,8 @@ import es.javocsoft.android.lib.toolbox.gcm.NotificationModule;
  * device to enter in suspend mode while the notification is being 
  * processed. 
  * 
- * CustomGCMBroadcastReceiver -> GCMIntentService -> CustomNotificationReceiver
- * (receives the notification>      (process)		   (user opens the not.)
+ * CustomGCMBroadcastReceiver - GCMIntentService - CustomNotificationReceiver
+ * (receives the notification)      (process)		   (user opens the not.)
  * 
  * @author JavocSoft 2014
  * @since  2014

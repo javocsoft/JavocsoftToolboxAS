@@ -213,6 +213,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
@@ -918,9 +919,11 @@ public final class ToolBox {
      *
      * This method need two additional permissions in the application:
      *
-     * <code>
+	 * {@code
+	 * <pre>
      *  <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
-     * </code>
+	 * </pre>
+	 * }
      *
      * @param context       The application context.
      * @param appMain       The application main class
@@ -1185,9 +1188,11 @@ public final class ToolBox {
      *
      * This method need two additional permissions in the application:
      *
-     * <code>
+     * {@code
+	 * <pre>
      *  <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
-     * </code>
+     * </pre>
+	 * }
      *
      * @param context   The application context.
      * @param appClass  Shortcut's  activity class.
@@ -1214,9 +1219,10 @@ public final class ToolBox {
      *
      *  This method need two additional permissions in the application:
      *
-     * <code>
+	 * {@code
+     * <pre>
      *  <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
-     * </code>
+     * </pre>}
      *
      * @param context   The application context.
      * @param appClass  Shortcut's  activity class.
@@ -3269,7 +3275,7 @@ public final class ToolBox {
 	 * @param notificationId	Used to be able to cancel a notification once
 	 * 							the action is consumed.
 	 * @return
-	 * @Deprecated Use {@link ToolBox#notification_createActionButton}
+	 * @deprecated Use {@link ToolBox#notification_createActionButton}
 	 */
 	public static Action
 		notification_createAction(int iconId, String title, PendingIntent actionIntent, 
@@ -3364,7 +3370,9 @@ public final class ToolBox {
 	/**
 	 * The methods in this section allows you to ensure that this points bellow can be achivied
 	 * in order to run an application with Android 6+ versions.
-	 * 
+	 *
+	 *{@code
+	 * <pre>
 	 * 	Android >= 6+
 	 * 	=============
 	 *
@@ -3390,9 +3398,10 @@ public final class ToolBox {
 	 *	
 	 *	Android < 6
 	 *	===========
-	 *	
 	 *	Start the App:
 	 *	    Do not ask for permissions and runs normally (OK)
+	 *
+	 *	</pre>}
 	 */	
 	
 	public static final String ANDROID_PERMISSION_READ_CALENDAR = "android.permission.READ_CALENDAR";
@@ -3791,7 +3800,7 @@ public final class ToolBox {
 	 * @param permissions	A list of Android permissions to look in. See 
 	 * 						<a href="https://developer.android.com/guide/topics/security/permissions.html?hl=es"> Android permission</a>
 	 * @param permissionToCheck	A permission to find in the permissions list. 
-	 * 							Use ToolBox.ANDROID_PERMISSION_<permission_name>.
+	 * 							Use ToolBox.ANDROID_PERMISSION_(permission_name).
 	 * @return
 	 */
 	public static boolean permission_isPermissionInList(String[] permissions, String permissionToCheck){
@@ -3822,7 +3831,8 @@ public final class ToolBox {
 		if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
 			if(!permissionsListToAsk.contains(permission)) {
 				permissionsListToAsk.add(permission);
-				permissionsNamesListToAsk.add(permissionLabel);
+				if(!permissionsNamesListToAsk.contains(permissionLabel))
+					permissionsNamesListToAsk.add(permissionLabel);
 			}			
         }        
     }
@@ -4126,7 +4136,7 @@ public final class ToolBox {
 	 * If the device is an emulator returns "EMU", if no SIM is present returns
 	 * NOSIM.
 	 *
-	 * @See NETWORK_PROVIDER.
+	 * {@link ToolBox.NETWORK_PROVIDER}.
 	 *
 	 * @param ctx
 	 * @return
@@ -5355,6 +5365,8 @@ public final class ToolBox {
 	/** 
 	 * When using HTTPS, if accessing to resources not under HTTPS, Android by default
 	 * denies them. These are the options for mixed-mode.
+	 *{@code
+	 * <pre>
 	 * <br><br>
 	 * <ul>
 	 * <li>ALLOW: In this mode, the WebView will allow a secure origin to load content from any 
@@ -5365,6 +5377,7 @@ public final class ToolBox {
 	 * operation for the WebView, and where possible apps should not set this mode.</li>
 	 * <li>DISALLOW: Mised content is not allowed.</li>
 	 * <ul>
+	 * </pre>}
 	 */	
 	public static enum WEBVIEW_MIXED_MODE_ALLOWANCE {ALLOW, ALLOW_ALL, DISALLOW};
 	
@@ -5901,8 +5914,11 @@ public final class ToolBox {
 	
 	/**
 	 * Extracts the parameters of an intent open application URI. This kind of URL looks:
-	 * 
+	 *
+	 * {@code
+	 * <pre>
 	 * market://details?id=com.colectivosvip.orange.porserorange&url=serdeorange://serdeorange.orange.es?param1=https%3A%2F%2Fprogramaserdeorange.orange.es%2Fprivada%2Foffer-details.action%3Fo%3D403
+	 * </pre>}
 	 * 
 	 * @param intent	The intent to extract its URI parameters from.
 	 * @return	A Map with the parameters and values.
@@ -5916,7 +5932,11 @@ public final class ToolBox {
 	/**
 	 * Extracts the parameters of an intent open application URI. This kind of URL looks like:
 	 * <br><br>
+	 *
+	 * {@code
+	 * <pre>
 	 * market://details?id=com.colectivosvip.orange.porserorange&url=serdeorange://serdeorange.orange.es?param1=https%3A%2F%2Fprogramaserdeorange.orange.es%2Fprivada%2Foffer-details.action%3Fo%3D403
+	 * </pre>}
 	 * 
 	 * @param uri	The URI to extract parameters from.
 	 * @return	A Map with the parameters and values.
@@ -5949,7 +5969,10 @@ public final class ToolBox {
 	 * 
 	 * The URL should looks like:
 	 * <br>
+	 * {@code
+	 * <pre>
 	 * market://details?id=com.application.package&url=protocol://specific.domain.app?param1=param1value&param2=param2value
+	 * </pre>}
 	 * <br><br>
 	 * See: <a href="https://developer.android.com/training/app-links/index.html">Application links</a>
 	 * <br><br>
@@ -6319,9 +6342,10 @@ public final class ToolBox {
 	 * This method obtains a Bitmao object for the specified resource where
 	 * resource can be a drawable resource Id, an assets/raw folder file name or 
 	 * an URL.<br><br>
-	 * 
+	 *
+	 *
 	 * The order of load is:<br>
-	 *		DRAWABLE -> ASSETS -> RAW -> URL
+	 *		DRAWABLE -- ASSETS -- RAW -- URL
 	 *	
 	 * @param context
 	 * @param resource	A drawable resource Id, an assets folder file name or 
@@ -8307,7 +8331,37 @@ public final class ToolBox {
 		
 		return null;
 	}
-	
+
+	/**
+	 * Creates a circular area, or fence, around the location of interest. Geofence
+	 * is configured for ENTER and EXIT transitions.
+	 *
+	 * <br><br>
+	 * Geofencing combines awareness of the user's current location with
+	 * awareness of the user's proximity to locations that may be of
+	 * interest. You can have multiple active geofences, with a limit of
+	 * 100 per device user.<br>
+	 * <br>
+	 * See Geofences at <a href="http://developer.android.com/intl/es/training/location/geofencing.html">Google developer</a>.
+	 * <br><br>
+	 * Note:<br><br>
+	 *
+	 * Requires the permission ACCESS_FINE_LOCATION.
+	 *
+	 * @param name				The name of the Geofence.
+	 * @param latitute			The latitude.
+	 * @param longitude			The longitude.
+	 * @param radius			To adjust the proximity for the location.
+	 * @param expirationMillis	After this time geofence expires. If expiration
+	 * 							is not needed, use {@link Geofence#NEVER_EXPIRE}.
+	 * @return
+	 */
+	public static Geofence location_geofencesCreate(String name,
+			double latitute, double longitude, float radius,
+			long expirationMillis) {
+		return location_geofencesCreate(name, latitute, longitude, radius, expirationMillis, true, true, false, null);
+	}
+
 	/**
 	 * Creates a circular area, or fence, around the location of interest.
 	 * <br><br>
@@ -8328,25 +8382,62 @@ public final class ToolBox {
 	 * @param radius			To adjust the proximity for the location.
 	 * @param expirationMillis	After this time geofence expires. If expiration 
 	 * 							is not needed, use {@link Geofence#NEVER_EXPIRE}.
+	 * @param warnOnEnter		Set to TRUE to be warned when enter in a geofence.
+	 * @param warnOnExit		Set to TRUE to be warned also when exit from geofence.
+	 * @param warnOnDwell		Set to TRUE to we warned when time is spent in a geofence.
+	 * @param dwellTime			Set to a value major than 0 to set the time that
+	 *                          once we enter in the geofence, must be spent in it
+	 *                          before be notified. In milliseconds. Only aplicable
+	 *                          if warnOnDwell is set to TRUE. default is 2 minutes.
+	 *
 	 * @return
 	 */
 	public static Geofence location_geofencesCreate(String name, 
 			double latitute, double longitude, float radius,
-			long expirationMillis) {
-		
-		return new Geofence.Builder()
-	    // Set the request ID of the geofence. This is a string to identify this
+			long expirationMillis, boolean warnOnEnter, boolean warnOnExit, boolean warnOnDwell, Integer dwellTime) {
+
+		Geofence.Builder builder = new Geofence.Builder();
+
+		// Set the request ID of the geofence. This is a string to identify this
 	    // geofence.
-	    .setRequestId(name)
-	    .setCircularRegion(latitute,longitude,radius)
-	    .setExpirationDuration(expirationMillis)
-	    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-	    					Geofence.GEOFENCE_TRANSITION_EXIT)
-	    .build();
+	    builder.setRequestId(name)
+		.setCircularRegion(latitute,longitude,radius)
+		.setExpirationDuration(expirationMillis);
+
+		if(warnOnEnter && warnOnExit && warnOnDwell){ 						// ENTER|EXIT|DWELL
+			builder.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+					Geofence.GEOFENCE_TRANSITION_EXIT |
+					Geofence.GEOFENCE_TRANSITION_DWELL);
+			builder.setLoiteringDelay((dwellTime!=null && dwellTime>0?dwellTime:(60*2)*1000));
+		}else if(!warnOnEnter && !warnOnExit && !warnOnDwell){ 				// NONE = ENTER
+			//At least when enter is notified.
+			builder.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER);
+		}else if(warnOnEnter && warnOnExit && !warnOnDwell){ 				// ENTER|EXIT
+			builder.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+					Geofence.GEOFENCE_TRANSITION_EXIT);
+		} else if(warnOnEnter && !warnOnExit && warnOnDwell) { 				// ENTER|DWELL
+			builder.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+					Geofence.GEOFENCE_TRANSITION_DWELL);
+			builder.setLoiteringDelay((dwellTime != null && dwellTime > 0 ? dwellTime : (60 * 2) * 1000));
+		}else if(warnOnEnter && !warnOnExit && !warnOnDwell){ 				// ENTER
+			builder.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER);
+		}else if(!warnOnEnter && warnOnExit && warnOnDwell){ 				// EXIT|DWELL
+			builder.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT |
+					Geofence.GEOFENCE_TRANSITION_DWELL);
+			builder.setLoiteringDelay((dwellTime!=null && dwellTime>0?dwellTime:(60*2)*1000));
+		}else if(!warnOnEnter && warnOnExit && !warnOnDwell) { 				// EXIT
+			builder.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT);
+		}else if(!warnOnEnter && !warnOnExit && warnOnDwell) { // DWELL
+			builder.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL);
+			builder.setLoiteringDelay((dwellTime != null && dwellTime > 0 ? dwellTime : (60 * 2) * 1000));
+		}
+
+	    return builder.build();
 	}
 	
 	/**
-	 * Creates a circular area, or fence, around the location of interest.
+	 * Creates a circular area, or fence, around the location of interest. Geofence
+	 * is configured for ENTER and EXIT transitions.
 	 * <br><br>
 	 * Geofencing combines awareness of the user's current location with 
 	 * awareness of the user's proximity to locations that may be of 
@@ -8370,13 +8461,15 @@ public final class ToolBox {
 			Location location, float radius,
 			long expirationMillis) {
 		return location_geofencesCreate(name, location.getLatitude(), location.getLongitude(), 
-				radius, expirationMillis);
+				radius, expirationMillis, true, true, false, null);
 	}
 	
 	/**
 	 * Creates a geofencing trigger request. This will make the location service
 	 * to launch geofencing events (enter/exit events) with the specified
-	 * geofence list.
+	 * geofence list. Look for geofences designed for transitions EXIT, ENTER AND/OR
+	 * DWELL.
+	 *
 	 * <br>
 	 * See Geofences at <a href="http://developer.android.com/intl/es/training/location/geofencing.html">Google developer</a>.
 	 * <br><br>
@@ -8398,7 +8491,9 @@ public final class ToolBox {
 		//In many cases, it may be preferable to use instead INITIAL_TRIGGER_DWELL,
 		//which triggers events only when the user stops for a defined duration 
 		//within a geofence.
-	    builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+	    builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER |
+				GeofencingRequest.INITIAL_TRIGGER_EXIT |
+				GeofencingRequest.INITIAL_TRIGGER_DWELL);
 	    builder.addGeofences(geofenceList);	    
 	    return builder.build();
 	}
@@ -8531,7 +8626,7 @@ public final class ToolBox {
 	 * operation that should be done outside of the UI thread 
 	 * is done in it. A sympton of this:
 	 * <br><br>
-	 * “Choreographer(abc): Skipped xx frames! The application may be doing too much work on its main thread.”
+	 * "Choreographer(abc): Skipped xx frames! The application may be doing too much work on its main thread."
 	 * <br><br>
 	 * It also stablishes the VmPolicy detecting leaked SQL
 	 * object and leaked closable objects with the penalty of
@@ -8605,7 +8700,7 @@ public final class ToolBox {
 	}
 	
 	//-------------------- Google API -------------------------------------------------------------------
-	
+
 	/**
 	 * Gets a Google API client for the desired Google API.<br><br>
 	 * 
@@ -8619,18 +8714,33 @@ public final class ToolBox {
 	 * @param requestedApi				The Google API to request.
 	 * @return GoogleApiClient			The Google API client.
 	 */
-	public static GoogleApiClient googleAPI_getApiClient(Context context, 
-			GoogleApiClient.ConnectionCallbacks connectionCallback,
-			GoogleApiClient.OnConnectionFailedListener connectionFailListener,
-			Api<? extends Api.ApiOptions.NotRequiredOptions> requestedApi) {
-		
-		return new GoogleApiClient.Builder(context)
-        .addConnectionCallbacks(connectionCallback)
-        .addOnConnectionFailedListener(connectionFailListener)
-        .addApi(requestedApi)
-        .build();
+	public static GoogleApiClient googleAPI_getApiClient(Context context,
+														 GoogleApiClient.ConnectionCallbacks connectionCallback,
+														 GoogleApiClient.OnConnectionFailedListener connectionFailListener,
+														 Api<? extends Api.ApiOptions.NotRequiredOptions> requestedApi, List<Scope> apiScopes) {
+
+		if(requestedApi!=null){
+			GoogleApiClient.Builder builder = new GoogleApiClient.Builder(context);
+			builder.addApi(requestedApi);
+
+			if(connectionCallback!=null)
+				builder.addConnectionCallbacks(connectionCallback);
+
+			if(connectionFailListener!=null)
+				builder.addOnConnectionFailedListener(connectionFailListener);
+
+			if(apiScopes!=null && !apiScopes.isEmpty()) {
+				//Add any scope if is demanded
+				for(Scope s:apiScopes)
+					builder.addScope(s);
+			}
+
+			return builder.build();
+		}else{
+			return null;
+		}
 	}
-	
+
 	//---------------------- Tasks -------------------------------------------------------------------
 	
 	/**

@@ -79,8 +79,12 @@ public abstract class WebviewJavascriptInterface {
      * with it.<br><br>
      * 
      * Usage:<br>
-     *	Put this in webview's "onPageFinished":<br
-     *		<pre>view.loadUrl("javascript:window.Android.getContent('<html>' + escape(document.getElementsByTagName('html')[0].innerHTML) + '</html>');");</pre>
+     *	Put this in webview's "onPageFinished":<br>
+	 *	   	{@code
+     *		<pre>
+	 *		    view.loadUrl("javascript:window.Android.getContent('<html>' + escape(document.getElementsByTagName('html')[0].innerHTML) + '</html>');");
+	 *		</pre>}
+	 *
      * 
      * 
      * @param htmlRaw

@@ -8,8 +8,9 @@ apply plugin: "com.jfrog.bintray"
 // (change to a new version every new library release)
 //
 // 1.- Change version to a new one.
-version = "1.0.3"
+version = "1.0.4"
 // 1.- First run "Gradle->Other->Install" to generate Maven stuff.
+//     (it will run task javadocJar and sourcesJar leaving artifacts in $buildDir/libs)
 // 2.- Second, execute "Gradle->Publishing->bintrayUpload" to upload the library to JCenter
 // 3.- Check in https://bintray.com/javocsoft/maven/es.javocsoft%3Ajavocsofttoolbox
 
@@ -30,6 +31,11 @@ android {
         release {
             minifyEnabled false
             debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -62,13 +68,16 @@ dependencies {
     // (https://developers.google.com/android/guides/setup#Install)
     // (https://developers.google.com/android/reference/packages)
     // GoogleApiClient: https://developers.google.com/android/reference/com/google/android/gms/common/api/GoogleApiClient
-    // compile 'com.google.android.gms:play-services:11.0.2'
+    //compile 'com.google.android.gms:play-services:11.0.2'
+
+    compile 'com.google.android.gms:play-services-base:11.0.2'
     compile 'com.google.android.gms:play-services-analytics:11.0.2'
     compile 'com.google.android.gms:play-services-gcm:11.0.2'
     compile 'com.google.android.gms:play-services-drive:11.0.2'
     compile 'com.google.android.gms:play-services-location:11.0.2'
     compile 'com.google.android.gms:play-services-maps:11.0.2'
     compile 'com.google.android.gms:play-services-ads:11.0.2'
+
     //compile 'com.google.android.gms:play-services-places:11.0.2'
     //compile 'com.google.android.gms:play-services-auth:11.0.2'
 
@@ -136,27 +145,128 @@ install {
     }
 }
 
-/*
+
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
-    //destinationDir = file("mvnartifacts/")
+    //destinationDir = file("$buildDir")
     //failOnError false
 }
+//task javadoc(type: Javadoc) {
+//    source = android.sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//    //destinationDir = file("./mvnartifacts/")
+//    //failOnError true
+//}
+
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.io.FileOutputStream
+import java.util.zip.ZipFile
+
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    //destinationDir = file("./mvnartifacts/")
-    //failOnError true
+    classpath += configurations.compile
+    classpath += configurations.provided
+    //destinationDir = file("$buildDir/")
+
+    afterEvaluate {
+        // Wait after evaluation to add the android classpath
+        // to avoid "buildToolsVersion is not specified" error
+        classpath += files(android.getBootClasspath())
+
+        // Process AAR dependencies
+        def aarDependencies = classpath.filter { it.name.endsWith('.aar') }
+        classpath -= aarDependencies
+        aarDependencies.each { aar ->
+            // Extract classes.jar from the AAR dependency, and add it to the javadoc classpath
+            def outputPath = "$buildDir/tmp/aarJar/${aar.name.replace('.aar', '.jar')}"
+            classpath += files(outputPath)
+
+            // Use a task so the actual extraction only happens before the javadoc task is run
+            dependsOn task(name: "extract ${aar.name}").doLast {
+                extractEntry(aar, 'classes.jar', outputPath)
+            }
+        }
+    }
+}
+// Utility method to extract only one entry in a zip file
+private def extractEntry(archive, entryPath, outputPath) {
+    if (!archive.exists()) {
+        throw new GradleException("archive $archive not found")
+    }
+
+    def zip = new ZipFile(archive)
+    zip.entries().each {
+        if (it.name == entryPath) {
+            def path = Paths.get(outputPath)
+            if (!Files.exists(path)) {
+                Files.createDirectories(path.getParent())
+                Files.copy(zip.getInputStream(it), path)
+            }
+        }
+    }
+    zip.close()
 }
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
 artifacts {
     archives javadocJar
     archives sourcesJar
-}*/
+}
+
+/* Gradle task which finds source and javadoc by location/naming convention, and registers them
+   in the .idea files on sync. It belongs in the root gradle file's allProjects section. As-is,
+   it expects to find [projectname]/libs/lib.jar next to lib-sources.jar and/or lib-javadoc.jar.
+   Also, as noted in comments, if your javadocs not pathed at "/" inside the jar, you may need to
+   change the script to add "docs/html" (for example) at the end of "jar://$doc!/"
+ */
+task addJavaDoc {
+    afterEvaluate {
+        // Specify paths, this will be run per non-root project
+        def projectDir = project.getProjectDir().getCanonicalPath()
+        def rootDir = project.getRootDir().getCanonicalPath()
+        def lib = projectDir + '/libs'
+
+        // println lib // Uncomment this to troubleshoot
+        // Get any jar dependencies register in the lib folder
+        fileTree(include: ['*.jar'], exclude: ['*-source.jar', '*-javadoc.jar'], dir: lib ).each { File jar ->
+            def jarName = jar.getName()
+            def moduleName = jarName.substring(0, jarName.lastIndexOf("."))
+            // IntelliJ does this to file names when making the xml files
+            def escapedName = moduleName.replace("-", "_").replace(".", "_")
+            def xmlFile = "$rootDir/.idea/libraries/${escapedName}.xml"
+            // println xmlFile // Uncomment this to troubleshoot
+            if (new File(xmlFile).exists()) {
+                ['javadoc', 'sources'].each {String docType ->
+                    // Get sources or java doc by naming convention, (expects name-sources or name-javadoc
+                    def doc = "$lib/$moduleName-${docType}.jar"
+                    // println doc // Uncomment this to troubleshoot
+                    if(new File(doc).exists()) {
+                        def xml = new XmlParser().parse(xmlFile);
+                        def xmlTag = docType.toUpperCase()
+                        // Perform xml replacement by convention
+                        xml.library[xmlTag].replaceNode {
+                            "$xmlTag" {
+                                root(url: "jar://$doc!/")
+                            }
+                        }
+                        // Write out changes
+                        new XmlNodePrinter(new PrintWriter(new FileWriter(xmlFile))).print(xml)
+                        // Notify that changes worked
+                        println "Fixed up reference to $doc"
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
 
 //Load properties of the project
 Properties properties = new Properties()
@@ -189,4 +299,13 @@ bintray {
 }
 
 // We put at the end to avoid version conflicts with JCenter and Maven plugins.
-apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.gms.google-services'
+
+// This plugin and task downloads javadocs and sources when using libraries.
+apply plugin: 'idea'
+idea{
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}

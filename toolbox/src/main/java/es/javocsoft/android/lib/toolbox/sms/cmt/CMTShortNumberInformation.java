@@ -37,6 +37,8 @@ import java.util.Locale;
  * Note from CMT web page about SMS/MMS services:<br><br>
  * 
  * SMS/MMS services: those services based in text and multimedia messages, types::<br>
+ * {@code
+ * <pre>
  * <ul>
  *		<li>Free SMS/MMS: those numerical codes of six digits that start with 205 or 207.</li>
  *		<li>Normal price SMS/MMS: those codes of six digits that start with 215 or 217.</li>
@@ -48,6 +50,7 @@ import java.util.Locale;
  *				<li>d) Adults with price minor or equal than 6 euros: Six digits codes that start with 995 or 997.</li>
  *			</ul>
  * </ul>
+ * </pre>}
  * 
  * @author JavocSoft 2013
  * @version 1.0

@@ -76,7 +76,7 @@ public class CMTInfoHelper {
 	 * Gets an instance of CMTInfoHelper class.
 	 * 
 	 * @param context
-	 * @param Optional. A callback class to do something 
+	 * @param callback Optional. A callback class to do something
 	 * 		  when CMT information is downloaded.
 	 * @return
 	 */

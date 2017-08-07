@@ -38,11 +38,14 @@ import android.util.Log;
  * SMS Observer for sent/received sms.
  * 
  * Requires permissions:
- * 
+ *
+ * <pre>
+ * {@code
  * <uses-permission android:name="android.permission.READ_PHONE_STATE" />
  * <uses-permission android:name="android.permission.READ_SMS" />
  * <uses-permission android:name="android.permission.SEND_SMS"/>
- * 
+ * }
+ * </pre>
  * Usage:
  * 
  * 	Handler smsHandler = new Handler();	

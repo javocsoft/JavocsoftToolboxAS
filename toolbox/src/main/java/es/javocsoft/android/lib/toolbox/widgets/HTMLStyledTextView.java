@@ -33,9 +33,9 @@ import android.widget.TextView;
  * NOTE:
  * 	Not all HTML tags are supported officially. Supported ones are:<br><br>
  * 
- * &lt;a href=”…”&gt;,&lt;b&gt;,&lt;big&gt;,&lt;blockquote&gt;,&lt;br&gt;,&lt;cite&gt;,&lt;dfn&gt;,
- * &lt;div align=”…”&gt;,&lt;em&gt;,&lt;font size=”…” color=”…” face=”…”&gt;,&lt;h1&gt;,
- * &lt;h2&gt;,&lt;h3&gt;,&lt;h4&gt;,&lt;h5&gt;,&lt;h6&gt;,&lt;i&gt;,&lt;img src=”…”&gt;,&lt;p&gt;,
+ * &lt;a href="…"&gt;,&lt;b&gt;,&lt;big&gt;,&lt;blockquote&gt;,&lt;br&gt;,&lt;cite&gt;,&lt;dfn&gt;,
+ * &lt;div align="…"&gt;,&lt;em&gt;,&lt;font size="…" color="…" face="…"&gt;,&lt;h1&gt;,
+ * &lt;h2&gt;,&lt;h3&gt;,&lt;h4&gt;,&lt;h5&gt;,&lt;h6&gt;,&lt;i&gt;,&lt;img src="…"&gt;,&lt;p&gt;,
  * &lt;small&gt;,&lt;strike&gt;,&lt;strong&gt;,&lt;sub&gt;,&lt;sup&gt;,&lt;tt&gt;,&lt;u&gt;<br><br>
  * 
  * @author JavocSoft 2014

@@ -47,11 +47,15 @@ import es.javocsoft.android.lib.toolbox.gcm.NotificationModule;
  *
  *      ...an example (the URL in the "referrer" url parameter is url encoded):
  *
+ * {@code
+ * <pre>
+ *
  *      https://play.google.com/store/apps/details?id=es.javocsoft.basetest
  *                     &referrer=utm_source%3Dfacebook
  *                               %26utm_medium%3Dbanner
  *                               %26utm_content%3Dbanner1
  *                               %26utm_campaign%3DcampaignOne
+ * </pre>}
  *
  *      The receiver can be test by using the ADN command:
  *

@@ -8,7 +8,7 @@ apply plugin: "com.jfrog.bintray"
 // (change to a new version every new library release)
 //
 // 1.- Change version to a new one.
-version = "1.0.4"
+version = "1.0.5"
 // 1.- First run "Gradle->Other->Install" to generate Maven stuff.
 //     (it will run task javadocJar and sourcesJar leaving artifacts in $buildDir/libs)
 // 2.- Second, execute "Gradle->Publishing->bintrayUpload" to upload the library to JCenter
@@ -21,8 +21,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 4
-        versionName "1.0.4"
+        versionCode 5
+        versionName "1.0.5"
         //multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //signingConfig signingConfigs.config
@@ -60,7 +60,7 @@ dependencies {
     })
 
     // Google Play compatibility support library
-    compile 'com.android.support:appcompat-v7:+'
+    compile 'com.android.support:appcompat-v7:26.0.0'
 
     // Google Play services SDK
     // (https://developers.google.com/android/guides/overview)
@@ -285,10 +285,29 @@ bintray {
         desc = "It is an Android commons utility library. For HowTo and usage see the WiKi https://github.com/javocsoft/javocsoft-toolbox/wiki. This library contains a set of useful functions, classes and modules ready to use. This project is a library for Android. While i was making my own projects i always tried to reuse the written code so i created this library. It was very useful so i decided to share it with all. The idea beyond is to make easier programming for Android :) Contains a set of utility classes, the most important called \"ToolBox\", with a set of quite large collection of different functions ready to be used just by including this library in your project."
         websiteUrl = siteUrl
         vcsUrl = gitUrl
+        //userOrg = "JavocSoft"
+        issueTrackerUrl = 'https://github.com/javocsoft/JavocsoftToolboxAS/issues'
+        labels = ["Android", "Toolbox"]
+        //released  = new Date()
+        //vcsTag = "1.0.4"
         licenses = ["gpl-3.0"]
         publish = true
         publicDownloadNumbers = true
         version {
+            //name = '1.0.4-Final' //Bintray logical version name
+            //desc = //Optional - Version-specific description'
+            //released  = //Optional - Date of the version release. 2 possible values: date in the format of 'yyyy-MM-dd'T'HH:mm:ss.SSSZZ' OR a java.util.Date instance
+            //vcsTag = '1.0.4'
+            //attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin'] //Optional version-level attributes
+
+            //Optional configuration for Maven Central sync of the version
+            mavenCentralSync {
+                sync = false //[Default: true] Determines whether to sync the version to Maven Central.
+                user = properties.getProperty("sonatypeOSS.username") //OSS user token: mandatory
+                password = properties.getProperty("sonatypeOSS.password") //OSS user password: mandatory
+                close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+            }
+
             gpg {
                 sign = true //Determines whether to GPG sign the files. The default is false
                 passphrase = properties.getProperty("bintray.gpg.password") //Optional. The passphrase for GPG signing'

@@ -10,13 +10,13 @@ import es.javocsoft.android.lib.toolbox.crypto.exception.SHA1EncodingException;
 public class SHA1Encoding {
 
 	private SHA1Encoding() {}
-	
-	
+
 	/**
 	 * Generates a SHA-1 hash from an string.
-	 * 
+	 *
 	 * @param data	The string to get the SHA-1 from.
 	 * @return
+	 * @throws SHA1EncodingException
 	 */
 	public static String getSHA1(String data) throws SHA1EncodingException {
 		

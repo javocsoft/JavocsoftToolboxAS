@@ -169,6 +169,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.provider.Settings.SettingNotFoundException;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
@@ -212,13 +213,18 @@ import com.google.android.gms.analytics.Logger.LogLevel;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Result;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 
 import es.javocsoft.android.lib.toolbox.encoding.Base64;
@@ -319,9 +325,10 @@ public final class ToolBox {
 	
 	/**
 	 * Converts a GSON JSON LinkedMap of objects to list of objects.
-	 * 
+	 *
 	 * @param jsonData	JSON string
 	 * @param type		See http://hmkcode.com/gson-json-java/
+	 * @param <T>
 	 * @return
 	 */
 	public static <T> List<T> gson_linkedMapAsList(String jsonData, java.lang.reflect.Type type) {
@@ -587,15 +594,16 @@ public final class ToolBox {
 			
 		return analytics.newTracker(analyticsTrackingId);
 	}
-	
+
 	/**
 	 * Sends to Google Analytics an event.
-	 * 
-	 * @param tracker		The analytics tracker to use when sending the 
+	 *
+	 * @param tracker		The analytics tracker to use when sending the
 	 * 						event.
 	 * @param eventCategory	Category of the event
 	 * @param eventAction	Action of the event
 	 * @param eventlabel	label of the event
+	 * @param eventValue
 	 */
 	public static void analytics_sendEvent (Tracker tracker, String eventCategory, String eventAction, String eventlabel, Long eventValue) {
 		
@@ -647,10 +655,11 @@ public final class ToolBox {
         
         return app_installed ;
     }
-	
+
 	/**
 	 * Gets the list of system applications.
-	 * 
+	 *
+	 * @param context
 	 * @return	The list. If error the list will be empty.
 	 */
 	public static Set<String> system_getSystemApplicationList(Context context) {
@@ -677,7 +686,8 @@ public final class ToolBox {
 	
 	/**
 	 * Checks if an application is a system application.
-	 * 
+	 *
+	 * @param context
 	 * @param appPackage
 	 * @return
 	 */
@@ -855,7 +865,7 @@ public final class ToolBox {
 	/**
 	 * Creates a application informative dialog with options to
 	 * uninstall/launch or cancel.
-	 * 
+	 *
 	 * @param context
 	 * @param appPackage
 	 */
@@ -925,13 +935,14 @@ public final class ToolBox {
 	 * </pre>
 	 * }
      *
-     * @param context       The application context.
-     * @param appMain       The application main class
-     * @param appName       The application name
-     * @param appIcon       The bitmap of the application icon. Can be null. If null, the
-     *                      appIconResId must be provided.
-     * @param appIconResId  Specify this only if no bitmap is set in the call to this method.
-     */
+	 * @param context       The application context.
+	 * @param appMain       The application main class
+	 * @param appName       The application name
+	 * @param appIcon       The bitmap of the application icon. Can be null. If null, the
+	 *                      appIconResId must be provided.
+	 * @param appIconResId  Specify this only if no bitmap is set in the call to this method.
+	 * @param removeCurrent	Set to TRUE to remove the current one.
+	 */
     public static void application_shortcutAdd(Context context, Class appMain, String appName,
                                                   Bitmap appIcon, int appIconResId,
                                                   boolean removeCurrent) {
@@ -972,7 +983,7 @@ public final class ToolBox {
     /**
      * Gets the application package name.
      * 
-     * @param context
+     * @param context	The context.
      * @return
      */
     public static String application_packageName(Context context) {
@@ -7795,7 +7806,6 @@ public final class ToolBox {
 
 		public LocationInfo() {
 		}
-		
 
 		public String getCountry() {
 			return country;
@@ -8309,11 +8319,200 @@ public final class ToolBox {
 		
 		return false;
 	}
+
+	public static final String LOCATION_KEY = "location";
+	public static final String LOCATION_COUNTRY_KEY = "location_country";
+	public static final String LOCATION_COUNTRY_CODE_KEY = "location_country_code";
+	public static final String LOCATION_CITY_KEY = "location_city";
+	public static final String LOCATION_ADDRESS_KEY = "location_address";
+	public static final String LOCATION_POSTAL_CODE_KEY = "location,postal_code";
+
+	/**
+	 * Creates a Bundle with location information including the address data (if provided). variables
+	 * used are:
+	 * <ul>
+	 *     <li>{@link ToolBox#LOCATION_KEY}. Stores the Location Object as parcelable object.</li>
+	 *     <li>{@link ToolBox#LOCATION_COUNTRY_KEY}. Stores the location country information string.</li>
+	 *     <li>{@link ToolBox#LOCATION_COUNTRY_CODE_KEY}. Stores the location country code information string.</li>
+	 *     <li>{@link ToolBox#LOCATION_CITY_KEY}. Stores the location city information string.</li>
+	 *     <li>{@link ToolBox#LOCATION_ADDRESS_KEY}. Stores the location address information string.</li>
+	 *     <li>{@link ToolBox#LOCATION_POSTAL_CODE_KEY}. Stores the location postal code information string.</li>
+	 * </ul>
+	 *
+	 * @param loc   The location. See {@link Location}
+	 * @param locInfo   Location address information. See {@link ToolBox.LocationInfo}. You can
+	 *                  get this information by using {@link ToolBox#location_addressInfo(Context, double, double)}
+	 *                  , NOTE, if you do so, the operation is expensive, try to get the info in a
+	 *                  separate thread.
+	 * @return
+	 */
+	public static Bundle saveInBundleLocation(Location loc, ToolBox.LocationInfo locInfo) {
+		Bundle extras = new Bundle();
+
+		extras.putParcelable(LOCATION_KEY, loc);
+
+		if(locInfo!=null) {
+			extras.putString(LOCATION_COUNTRY_KEY, locInfo.getCountry());
+			extras.putString(LOCATION_COUNTRY_CODE_KEY, locInfo.getCountryCode());
+			extras.putString(LOCATION_CITY_KEY, locInfo.getCity());
+			extras.putString(LOCATION_ADDRESS_KEY, locInfo.getAddress());
+			extras.putString(LOCATION_POSTAL_CODE_KEY, locInfo.getPostalCode());
+		}
+
+		return extras;
+	}
+
+	/**
+	 * Checks if the new location is better than the old one. It will have in consideration:
+	 * <ul>
+	 *     <li>Time between locations</li>
+	 *     <li>The distance between locations</li>
+	 *     <li>The accuracy of the new location</li>
+	 *     <li>The provider of the new location</li>
+	 * </ul>
+	 *
+	 * @param location  The new location.
+	 * @param currentBestLocation   The last location.
+	 * @param minDistance In meters. The min distance that must be between locations. If the new
+	 *                    location does not reach that meters, new location is discarded.
+	 * @param accuracyThreshold In meters. The accuracy threshold between locations when making
+	 *                          calculations.
+	 * @param timeThreshold In milliseconds. The time between locations. If is below that time, the
+	 *                      new location is discarded.
+	 * @return  TRUE if the new location is better, otherwise FALSE.
+	 */
+	public static boolean location_isBetterLocationComplex(Location location, Location currentBestLocation,
+												  int minDistance, int accuracyThreshold, long timeThreshold) {
+		if (currentBestLocation == null) {
+			return true; //New location is better than no location
+		}
+
+		//Check if new location is newer or older
+		long timeDelta = location.getTime() - currentBestLocation.getTime();
+		boolean isSignificantlyNewer = timeDelta > timeThreshold;
+		boolean isSignificantlyOlder = timeDelta < -timeThreshold;
+		boolean isNewer = timeDelta > 0;
+
+		if(currentBestLocation.getLatitude()==location.getLatitude() &&
+				currentBestLocation.getLongitude()==location.getLongitude()) {
+			//Same location, new measurement is newer yes but the location is the same.
+			isNewer = false;
+			if(ToolBox.LOG_ENABLE)
+				Log.d(TAG, "isBetterLocationComplex: isNever set to FALSE (same location).");
+		}else{
+			double distanceBetweenMeasurements = ToolBox.location_distance(location.getLatitude(), location.getLongitude(),
+					currentBestLocation.getLatitude(), currentBestLocation.getLongitude());
+			if(ToolBox.LOG_ENABLE)
+				Log.d(TAG, "isBetterLocationComplex: Elapsed distance (Haversine) since last location: " + distanceBetweenMeasurements);
+
+			if(distanceBetweenMeasurements<=minDistance){
+				//New measurement is newer yes but the distance between last and new location is less
+				//than the minimal distance.
+				isNewer = false;
+				if(ToolBox.LOG_ENABLE)
+					Log.d(TAG, "isBetterLocationComplex: isNever set to FALSE (Haversine distance less than threshold).");
+			}
+		}
+
+		//If it's been more than two minutes since the current location, we use the
+		//new location because the user has probably moved.
+		if (isSignificantlyNewer) {
+			return true;
+		} else if (isSignificantlyOlder) {
+			if(ToolBox.LOG_ENABLE)
+				Log.d(TAG, "isBetterLocationComplex: Location is not better: isSignificantlyOlder");
+			return false; //If the new location older than two minutes, should be worse
+		}
+
+		//Check if the new location is more or less accurate
+		int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
+		boolean isLessAccurate = accuracyDelta > 0;
+		boolean isMoreAccurate = false;
+		if(accuracyDelta < 0 && ((-1)*accuracyDelta)>=accuracyThreshold) {
+			isMoreAccurate = true;
+		}
+		boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+		if(ToolBox.LOG_ENABLE)
+			Log.d(TAG, "isBetterLocationComplex: isMore accurated? " + isMoreAccurate);
+
+		//Check if the old and new location have the same provider
+		boolean isFromSameProvider =
+				location_isSameProvider(location.getProvider(), currentBestLocation.getProvider());
+
+		//Watch for location quality using a combination of timeliness and accuracy
+		if (isMoreAccurate) {
+			return true;
+		} else if (isNewer && !isLessAccurate) {
+			return true;
+		} else if (isNewer && !isSignificantlyLessAccurate && isFromSameProvider) {
+			return true;
+		}
+
+		if(ToolBox.LOG_ENABLE)
+			Log.d(TAG, "isBetterLocationComplex (ALG - COMPLEX): is not better: isNewer: " + isNewer +
+					", isLessAccurate: " + isLessAccurate +
+					", isSignificantlyLessAccurate: " + isSignificantlyLessAccurate +
+					", isFromSameProvider: " + isFromSameProvider);
+
+		return false;
+	}
+
+	/**
+	 * Checks if the new location is better than the old one. It will only have in consideration the
+	 * distance between locations.
+	 *
+	 * @param location  The new location.
+	 * @param currentBestLocation   The last location.
+	 * @param minDistance   In meters. The min distance that must be between locations. If the new
+	 *                    location does not reach that meters, new location is discarded.
+	 * @return  TRUE if the new location is better, otherwise FALSE.
+	 */
+	public static boolean location_isBetterLocationSimple(Location location, Location currentBestLocation, int minDistance) {
+		boolean shouldAlert = true;
+
+		if (currentBestLocation == null) {
+			return true; //New location is better than no location
+		}
+
+		if(currentBestLocation.getLatitude()==location.getLatitude() &&
+				currentBestLocation.getLongitude()==location.getLongitude()) {
+			//Same location, new measurement is newer yes but the location is the same.
+			shouldAlert = false;
+			if(ToolBox.LOG_ENABLE)
+				Log.d(TAG, "isBetterLocationSimple: isNever set to FALSE (same location).");
+		}else{
+			double distanceBetweenMeasurements = ToolBox.location_distance(location.getLatitude(), location.getLongitude(),
+					currentBestLocation.getLatitude(), currentBestLocation.getLongitude());
+			if(ToolBox.LOG_ENABLE)
+				Log.d(TAG, "isBetterLocationSimple: Elapsed distance (Haversine) since last location: " + distanceBetweenMeasurements);
+
+			if(distanceBetweenMeasurements<=minDistance){
+				//New measurement is newer yes but the distance between last and new location is less
+				//than the minimal distance.
+				shouldAlert = false;
+				if(ToolBox.LOG_ENABLE)
+					Log.d(TAG, "isBetterLocationSimple: shouldAlert set to FALSE (Haversine distance less than threshold).");
+			}
+		}
+
+		return shouldAlert;
+	}
+
+	/**
+	 * Checks if two location providers are the same.
+	 **/
+	private static boolean location_isSameProvider(String provider1, String provider2) {
+		if (provider1 == null) {
+			return provider2 == null;
+		}
+		return provider1.equals(provider2);
+	}
+
 	
 	/**
 	 * Get the last known location or null if is not available.
 	 *
-	 * NOTE: Requires the permissions ACCESS_COARSE_LOCATION and ACCESS_FINE_LOCATION.
+	 * NOTE: Requires the permissions ACCESS_COARSE_LOCATION or ACCESS_FINE_LOCATION.
 	 *
 	 * @param context
 	 * @return
@@ -8330,6 +8529,245 @@ public final class ToolBox {
 		}
 		
 		return null;
+	}
+
+	/**
+	 * Get the last known location or null if is not available using Google API client and
+	 * the Fused location provider.
+	 * <br><br>
+	 * NOTE: Requires the permissions ACCESS_COARSE_LOCATION or ACCESS_FINE_LOCATION.
+	 *
+	 * @param context	Optional
+	 * @param glApiClient	The Google API client. Must be in a connected status.
+	 * @param mFusedLocationClient	The Fused Location to use.
+	 * @param locationSuccessListener	Optional
+	 * @param locationFailureListener	Optional
+	 * @return	TRUE if location can be requested or FALSE in case not.
+	 */
+	@SuppressWarnings({"MissingPermission"})
+	public static boolean location_gl_getLastKnownLocation(Activity context, GoogleApiClient glApiClient,
+														 FusedLocationProviderClient mFusedLocationClient,
+														 OnSuccessListener locationSuccessListener,
+														 OnFailureListener locationFailureListener) {
+		boolean res = true;
+		if(glApiClient!=null && glApiClient.isConnected()){
+			if(mFusedLocationClient!=null) {
+				if (context != null) {
+					mFusedLocationClient.getLastLocation()
+							.addOnSuccessListener(context, locationSuccessListener)
+							.addOnFailureListener(context, locationFailureListener);
+				} else {
+					mFusedLocationClient.getLastLocation()
+							.addOnSuccessListener(locationSuccessListener)
+							.addOnFailureListener(locationFailureListener);
+				}
+				return true;
+			}else{
+				if(LOG_ENABLE)
+					Log.d(TAG, "Last location could not be requested due to invalid Fused Location" +
+							" Provider (null).");
+				return false;
+			}
+		}else{
+			if(LOG_ENABLE)
+				Log.d(TAG, "Last location could not be requested due to invalid Google API client " +
+						"status.");
+			return false;
+		}
+	}
+
+	/**
+	 * Creates a location request. You can use predefined location request by calling method
+	 * {@link ToolBox#location_gl_createLocationRequestInRealTime(Long, Long)}  or
+	 * {@link ToolBox#location_gl_createLocationRequestBalanced(Long, Long)} or
+	 * {@link ToolBox#location_gl_createLocationRequestNoPower(Long)}.
+	 * <br><br>
+	 * See
+	 * <a href="https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest">Location Request</a>
+	 *
+	 * @param priority	See {@code LocationRequest}
+	 * @param intervalBetweenUpdates	Set the desired interval for active location updates, in
+	 *                                  milliseconds.
+	 * @param fastestInterval	Explicitly set the fastest interval for location updates, in
+	 *                          milliseconds. This controls the fastest rate at which your
+	 *                          application will receive location updates, which might be faster
+	 *                          than setInterval(long) in some situations (for example, if other
+	 *                          applications are triggering location updates). This allows your
+	 *                          application to passively acquire locations at a rate faster than it
+	 *                          actively acquires locations, saving power. Unlike setInterval(long),
+	 *                          this parameter is exact. Your application will never receive updates
+	 *                          faster than this value.
+	 * @param numUpdates	By default locations are continuously updated until the request is
+	 *                      explicitly removed, however you can optionally request a set number of
+	 *                      updates. For example, if your application only needs a single fresh
+	 *                      location, then call this method with a value of 1 before passing the
+	 *                      request to the location client. Remember to remove the request when no
+	 *                      longer needed or to set an expiration to it otherwise, in some cases,
+	 *                      if a location can't be computed, this request could stay active
+	 *                      indefinitely consuming power.
+	 *                      setExpirationDuration
+	 * @param smallestDisplacement	Set the minimum displacement between location updates in meters
+	 * @param expirationDuration	Set the duration of this request, in milliseconds. The duration
+	 *                              begins immediately (and not when the request is passed to the
+	 *                              location client), so call this method again if the request is
+	 *                              re-used at a later time. The location client will automatically
+	 *                              stop updates after the request expires. The duration includes
+	 *                              suspend time. Values less than 0 are allowed, but indicate that
+	 *                              the request has already expired.
+	 * @param expirationTime	Set the request expiration time, in millisecond since boot. This
+	 *                          expiration time uses the same time base as elapsedRealtime(). The
+	 *                          location client will automatically stop updates after the request
+	 *                          expires. The duration includes suspend time. Values before
+	 *                          elapsedRealtime() are allowed, but indicate that the request has
+	 *                          already expired.
+	 * @param maxWaitTime Sets the maximum wait time in milliseconds for location updates. If you
+	 *                    pass a value at least 2x larger than the interval specified with
+	 *                    setInterval(long), then location delivery may be delayed and multiple
+	 *                    locations can be delivered at once. Locations are determined at the
+	 *                    setInterval(long) rate, but can be delivered in batch after the interval
+	 *                    you set in this method. This can consume less battery and give more
+	 *                    accurate locations, depending on the device's hardware capabilities. You
+	 *                    should set this value to be as large as possible for your needs if you
+	 *                    don't need immediate location delivery.
+	 *
+	 * @return	See {@link LocationRequest}
+	 */
+	public static LocationRequest location_gl_createLocationRequest(int priority,
+																	Long intervalBetweenUpdates,
+																	Long fastestInterval,
+																	Integer numUpdates,
+																	Float smallestDisplacement,
+																	Long expirationDuration,
+																	Long expirationTime,
+																	Long maxWaitTime){
+		LocationRequest locRequest = new LocationRequest();
+		locRequest.setPriority(priority);
+
+		if(intervalBetweenUpdates!=null && intervalBetweenUpdates>0)
+			locRequest.setInterval(intervalBetweenUpdates);
+
+		if(fastestInterval!=null && fastestInterval>0)
+			locRequest.setFastestInterval(fastestInterval);
+
+		if((numUpdates!=null && numUpdates>0) &&
+				(expirationDuration!=null || expirationTime!=null)) {
+			locRequest.setNumUpdates(numUpdates);
+		}else{
+			if(LOG_ENABLE)
+				Log.w(TAG, "Location request creation ignored numUpdates parameter. Max number of " +
+						"updates set but no expiration time or expiration duration parameters.");
+		}
+
+		if(smallestDisplacement!=null && smallestDisplacement>0)
+			locRequest.setSmallestDisplacement(smallestDisplacement);
+
+		if(maxWaitTime!=null && maxWaitTime>=(intervalBetweenUpdates*2)) {
+			locRequest.setMaxWaitTime(maxWaitTime);
+		}else{
+			if(LOG_ENABLE)
+				Log.w(TAG, "Location request creation ignored maxWaitTime parameter. 'maxWaitTime' " +
+						" must be at least the double of 'intervalBetweenUpdates' parameter.");
+		}
+
+		return locRequest;
+	}
+
+	/**
+	 *  Creates a location request for an application that wants high accuracy location. This is
+	 *  useful for example for mapping applications that are showing your location in real-time.
+	 *  <br><br>
+	 *  See
+	 *  <a href="https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest">Location Request</a>
+	 *
+	 * @param intervalBetweenUpdates	Optional. Set the desired interval for active location updates, in
+	 *                                  milliseconds. Default time is 5 seconds.
+	 * @param fastestInterval			Optional. You should leave this empty. Sets the fastest
+	 *                                  interval for location updates, in milliseconds. This
+	 *                                  controls the fastest rate at which your application will
+	 *                                  receive location updates, which might be faster than
+	 *                                  "intervalBetweenUpdates" in some situations (for example,
+	 *                                  if other applications are triggering location updates). This
+	 *                                  allows your application to passively acquire locations at a
+	 *                                  rate faster than it actively acquires locations, saving
+	 *                                  power. Unlike "intervalBetweenUpdates", this parameter is
+	 *                                  exact. Your application will never receive updates faster
+	 *                                  than this value. If set, default is 2 seconds.
+	 * @return	See {@link LocationRequest}
+	 */
+	public static LocationRequest location_gl_createLocationRequestInRealTime(Long intervalBetweenUpdates, Long fastestInterval){
+		if(intervalBetweenUpdates==null || (intervalBetweenUpdates!=null && intervalBetweenUpdates<=0))
+			intervalBetweenUpdates = 5*1000l;
+		if(fastestInterval!=null && fastestInterval<=1)
+			fastestInterval = 2*1000l;
+
+		return location_gl_createLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY,
+				intervalBetweenUpdates,fastestInterval,null,null,null,null,null);
+	}
+
+	/**
+	 * Creates a location request for an application that wants negligible power impact, but to
+	 * still receive location updates when available. With this request your application will not
+	 * trigger (and therefore will not receive any power blame) any location updates, but will
+	 * receive locations triggered by other applications. This would be appropriate for
+	 * applications that have no firm requirement for location, but can take advantage when
+	 * available. See
+	 * <a href="https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest">Location Request</a>
+	 *
+	 * @param fastestInterval	Optional. Sets the fastest interval for location updates, in
+	 *                          milliseconds. This controls the fastest rate at which your
+	 *                          application will receive location updates, which might be faster
+	 *                          than setInterval(long) in some situations (for example, if other
+	 *                          applications are triggering location updates). This allows your
+	 *                          application to passively acquire locations at a rate faster than it
+	 *                          actively acquires locations, saving power. Unlike setInterval(long),
+	 *                          this parameter is exact. Your application will never receive updates
+	 *                          faster than this value. Default is 2 seconds.
+	 * @return	See {@link LocationRequest}
+	 */
+	public static LocationRequest location_gl_createLocationRequestNoPower(Long fastestInterval){
+		if(fastestInterval!=null && fastestInterval<=0)
+			fastestInterval = 2*1000l;
+		else
+			fastestInterval = null;
+
+		return location_gl_createLocationRequest(LocationRequest.PRIORITY_NO_POWER,
+				null,fastestInterval,null,null,null,null,null);
+	}
+
+	/**
+	 * Creates an application request for applications definitely want to receive updates at a
+	 * specified interval, and can receive them faster when available, but still want a low power
+	 * impact. They will only be assigned power blame for the interval set by "intervalBetweenUpdates",
+	 * but can still receive locations triggered by other applications at a rate up to "fastestInterval".
+	 * This style of request is appropriate for many location aware applications, including
+	 * background usage. Do be careful to also throttle setFastestInterval(long) if you perform
+	 * heavy-weight work after receiving an update - such as using the network. See
+	 * <a href="https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest">Location Request</a>
+	 *
+	 * @param intervalBetweenUpdates	Optional. Set the desired interval for active location updates, in
+	 *                                  milliseconds. Default time is 5 seconds.
+	 * @param fastestInterval			Optional. You should leave this empty. Sets the fastest
+	 *                                  interval for location updates, in milliseconds. This
+	 *                                  controls the fastest rate at which your application will
+	 *                                  receive location updates, which might be faster than
+	 *                                  "intervalBetweenUpdates" in some situations (for example,
+	 *                                  if other applications are triggering location updates). This
+	 *                                  allows your application to passively acquire locations at a
+	 *                                  rate faster than it actively acquires locations, saving
+	 *                                  power. Unlike "intervalBetweenUpdates", this parameter is
+	 *                                  exact. Your application will never receive updates faster
+	 *                                  than this value. If set, default is 2 seconds.
+	 * @return	See {@link LocationRequest}
+	 */
+	public static LocationRequest location_gl_createLocationRequestBalanced(Long intervalBetweenUpdates,
+																			Long fastestInterval){
+		if(intervalBetweenUpdates==null || (intervalBetweenUpdates!=null && intervalBetweenUpdates<=0))
+			intervalBetweenUpdates = 60*60*1000l;
+		if(fastestInterval==null || (fastestInterval!=null && fastestInterval<=0))
+			fastestInterval = 60*1000l;
+
+		return location_gl_createLocationRequest(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY,
+				intervalBetweenUpdates,fastestInterval,null,null,null,null,null);
 	}
 
 	/**
@@ -8576,7 +9014,36 @@ public final class ToolBox {
 				pendingIntent
 	    ).setResultCallback(resultCallback);
 	}
-	
+
+	/**
+	 * Enables the geofencing awareness for the specified list of geofences.
+	 *
+	 * @param context
+	 * @param googleApiClient
+	 * @param geofences	The geofences list.
+	 * @param geofencingService        The service that will handle geofencing related events.
+	 * @param geofencingResCallback	Optional. A callback (runable) to do something when geofencing
+	 *                              is enabled for the specified geofences list.
+	 * @return	PendingIntent Use it to remove awareness of geofencing. See {@link ToolBox#location_geofencesRemoveAwareness(GoogleApiClient, PendingIntent, ResultCallback)}.
+	 */
+	public static PendingIntent location_geofencesAddAwareness(Context context, GoogleApiClient googleApiClient, List<Geofence> geofences, Class geofencingService, final Runnable geofencingResCallback){
+		GeofencingRequest geofencingRequest = ToolBox.location_geofencesCreateTriggerRequest(geofences);
+		PendingIntent geofencingPendingIntent = ToolBox.location_geofencesCreatePendingIntent(context, geofencingService);
+		ResultCallback geofencingResultCallback = new ResultCallback() {
+			@Override
+			public void onResult(@NonNull Result result) {
+				if(LOG_ENABLE)
+					Log.d(TAG, "Geofencing Result Callback: " + result.getStatus());
+
+				//Do something if there is something to do
+				if(geofencingResCallback!=null)
+					geofencingResCallback.run();
+			}
+		};
+		ToolBox.location_geofencesAddAwareness(googleApiClient, geofencingRequest, geofencingPendingIntent, geofencingResultCallback);
+
+		return geofencingPendingIntent;
+	}
 		
 	
 	//-------------------- CRYPTO ------------------------------------------------------------------------

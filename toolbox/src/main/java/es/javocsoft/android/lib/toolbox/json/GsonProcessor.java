@@ -74,10 +74,10 @@ public class GsonProcessor {
 		gsonExposedFilter = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
 	}
 
-	
 	/**
 	 * Returns the GSON processor of the desired type.
-	 * 
+	 *
+	 * @param type
 	 * @return
 	 */
 	public Gson getGson(GSON_PROCESSOR_TYPE type) {

@@ -217,6 +217,7 @@ public class NotificationModule {
 	 * @param 	context		Context.  
 	 * @param	title		Title for the notification
 	 * @param 	clazz		Class to call when clicking in the notification
+	 * @throws 	GCMException
 	 */
 	public void gcmRegisterDevice(Context context, String title, Class<?> clazz) throws GCMException {
 		
@@ -239,6 +240,7 @@ public class NotificationModule {
 	 * @param 	environment	Allows to set the environment type. 
 	 * @param	title		Title for the notification
 	 * @param 	clazz		Class to call when clicking in the notification
+	 * @throws  GCMException
 	 */
 	public void gcmRegisterDevice(final Context context, final EnvironmentType environment,
 								  String title, Class<?> clazz) throws GCMException {
@@ -479,6 +481,7 @@ public class NotificationModule {
 	 * <p>
 	 * If result is empty, the app needs to register.
 	 *
+	 * @param context
 	 * @return registration ID, or empty string if there is no existing
 	 *         registration ID.
 	 */

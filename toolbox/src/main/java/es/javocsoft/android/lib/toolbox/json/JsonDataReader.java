@@ -77,15 +77,15 @@ public class JsonDataReader {
 		this.gsonProcessor = gsonProcessor;
 		loadAndProcessJSON();
 	}
-	
-	
+
 	/**
 	 * Gets the JsonObject for the specified element name. The desired object
 	 * could be a valid json object or an object in string format inside the JSON.
-	 * 
+	 *
 	 * @param name The element name
 	 * @return	The JsonObject or null if element does not exists or is not a
 	 * 			JsonObject.
+	 * @throws JsonDataException
 	 */
 	public JsonObject getJsonObject(String name) throws JsonDataException {
 		if(!isNull(name)){			
@@ -121,12 +121,13 @@ public class JsonDataReader {
 		
 		return null;
 	}
-	
+
 	/**
-	 * Gets the JsonElement for the specified element name. 
-	 * 
+	 * Gets the JsonElement for the specified element name.
+	 *
 	 * @param name The element name.
 	 * @return
+	 * @throws JsonDataException
 	 */
 	public JsonElement getJsonElement(String name) throws JsonDataException {
 		if(!isNull(name)){
@@ -147,11 +148,12 @@ public class JsonDataReader {
 	}	
 	
 	/**
-	 * Get the JsonArray from the JSON data and converts to List.
-	 * 
+	 * * Get the JsonArray from the JSON data and converts to List.
+	 *
 	 * @param name	The name of the JsonElement that contains the JsonArray.
 	 * @param itemClass The object type (class) of the list.
 	 * @return A list of item objects.
+	 * @throws JsonDataException
 	 */
 	public List<?> getListFromJsonArrayElement(String name, Object itemClass) throws JsonDataException {
 		List<?> res = null;

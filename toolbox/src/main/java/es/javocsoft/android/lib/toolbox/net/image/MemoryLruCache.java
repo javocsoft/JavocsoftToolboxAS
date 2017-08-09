@@ -22,6 +22,7 @@
 package es.javocsoft.android.lib.toolbox.net.image;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Memory LRU Cache.
@@ -53,7 +54,7 @@ public class MemoryLruCache<K, V> extends LinkedHashMap<K, V> {
 	}
 
 	@Override
-	protected boolean removeEldestEntry(Entry<K, V> eldest) {
+	protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
 		// After size exceeds max entries, this statement returns true and the
 		// oldest value will be removed. Since this map is access oriented the
 		// oldest value would be least recently used.

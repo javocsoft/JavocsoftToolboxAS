@@ -30,6 +30,12 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.google.android.gms.common.api.Api;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.util.List;
+
 import es.javocsoft.android.lib.toolbox.ToolBox;
 import es.javocsoft.android.lib.toolbox.ToolBox.LocationInfo;
 
@@ -131,7 +137,11 @@ import es.javocsoft.android.lib.toolbox.ToolBox.LocationInfo;
  * <br><br>
  * NOTES: This requires the permission android.permission.ACCESS_COARSE_LOCATION or
  * android.permission.ACCESS_FINE_LOCATION.
- * 
+ *
+ * @deprecated Use Google API client Location Services {@link com.google.android.gms.location.LocationServices}
+ * with methods in ToolBox for Google API Client {@link ToolBox#googleAPI_getApiClient(Context, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Api, List)}
+ * and so.
+ *
  * @author JavocSoft 2013
  * @version 2.0<br>
  * $Rev$<br>
@@ -139,6 +149,7 @@ import es.javocsoft.android.lib.toolbox.ToolBox.LocationInfo;
  * $LastChangedBy$
  *
  */
+@Deprecated
 public class LocationService extends Service implements LocationListener {
 
 	private static final String TAG = ToolBox.TAG + ":" + "LocSvc";
@@ -477,6 +488,9 @@ public class LocationService extends Service implements LocationListener {
     
     /**
      * An utility method to perform a job in a separated thread.
+	 *
+	 * @param runnable The runnable to run
+	 * @return The running thread.
      */
     public static Thread doInBackgroundThread(final Runnable runnable) {
         final Thread t = new Thread() {

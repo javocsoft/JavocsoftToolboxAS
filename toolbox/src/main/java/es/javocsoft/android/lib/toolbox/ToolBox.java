@@ -8586,8 +8586,8 @@ public final class ToolBox {
 	 * <a href="https://developers.google.com/android/reference/com/google/android/gms/location/LocationRequest">Location Request</a>
 	 *
 	 * @param priority	See {@code LocationRequest}
-	 * @param intervalBetweenUpdates	Set the desired interval for active location updates, in
-	 *                                  milliseconds.
+	 * @param intervalBetweenUpdates	Set the desired interval for active (application asks)
+	 *                                  location updates, in milliseconds.
 	 * @param fastestInterval	Explicitly set the fastest interval for location updates, in
 	 *                          milliseconds. This controls the fastest rate at which your
 	 *                          application will receive location updates, which might be faster

@@ -1977,13 +1977,14 @@ public final class ToolBox {
 	  * @param positiveBtnActions	Can be null. When null button is not shown.
 	  * @param negativeBtnActions	Can be null. When null button is not shown.
 	  * @param neutralBtnActions	Can be null.
+	  * @return The AlertDialog
 	  */
-	 public static void dialog_showCustomActionsDialog(Context context, String title, String message, 
+	 public static AlertDialog dialog_showCustomActionsDialog(Context context, String title, String message,
 			 String positiveBtnText, final Runnable positiveBtnActions, 
 			 String negativeBtnText, final Runnable negativeBtnActions, 
 			 String neutralBtnText, final Runnable neutralBtnActions){
 		
-		dialog_showCustomActionsDialog(context, title, message, positiveBtnText, positiveBtnActions, negativeBtnText, negativeBtnActions, neutralBtnText, neutralBtnActions, false);
+		return dialog_showCustomActionsDialog(context, title, message, positiveBtnText, positiveBtnActions, negativeBtnText, negativeBtnActions, neutralBtnText, neutralBtnActions, false);
 	 }
 	 
 	 /**
@@ -1998,12 +1999,13 @@ public final class ToolBox {
 	  * @param negativeBtnActions	Can be null. When null button is not shown.
 	  * @param neutralBtnActions	Can be null.
 	  * @param modal				If set to TRUE, dialog can not be cancelled until action is done.
+	  * @return The AlertDialog
 	  */
-	 public static void dialog_showCustomActionsDialog(Context context, String title, String message, 
+	 public static AlertDialog dialog_showCustomActionsDialog(Context context, String title, String message,
 			 String positiveBtnText, final Runnable positiveBtnActions, 
 			 String negativeBtnText, final Runnable negativeBtnActions, 
 			 String neutralBtnText, final Runnable neutralBtnActions, boolean modal){
-		 
+
 		AlertDialog dialog = new AlertDialog.Builder(context).create();
 			
 		dialog.setTitle(title);			
@@ -2042,6 +2044,8 @@ public final class ToolBox {
 		}
 		
 		dialog.show();
+
+		 return dialog;
 	 }
 	 
 	 /**
@@ -7784,6 +7788,7 @@ public final class ToolBox {
 	//-------------------- LOCATION ----------------------------------------------------------------------
 	
 	public static class LocationInfo {
+		private Location location;
 		private String country;
 		private String countryCode;
 		private String city;
@@ -7806,6 +7811,17 @@ public final class ToolBox {
 
 		public LocationInfo() {
 		}
+
+		public LocationInfo(Context context, Location location) {
+			this.location = location;
+			this.country = ToolBox.location_addressInfo(context, ToolBox.LOCATION_INFO_TYPE.COUNTRY, location.getLatitude(), location.getLongitude());
+			this.countryCode = ToolBox.location_addressInfo(context, ToolBox.LOCATION_INFO_TYPE.COUNTRY_CODE, location.getLatitude(), location.getLongitude());
+			this.city = ToolBox.location_addressInfo(context, ToolBox.LOCATION_INFO_TYPE.CITY, location.getLatitude(), location.getLongitude());
+			this.address = ToolBox.location_addressInfo(context, ToolBox.LOCATION_INFO_TYPE.ADDRESS, location.getLatitude(), location.getLongitude());
+			this.postalCode = ToolBox.location_addressInfo(context, ToolBox.LOCATION_INFO_TYPE.POSTAL_CODE, location.getLatitude(), location.getLongitude());
+		}
+
+		public Location getLocation() { return location;}
 
 		public String getCountry() {
 			return country;
@@ -8013,9 +8029,16 @@ public final class ToolBox {
 	            List<Address> addresses = gcd.getFromLocation(latitude, longitude,10);
 	
 	            for (Address adrs : addresses) {
-	            	if(res==null)
+	            	if(res==null){
 	            		res = new LocationInfo();
-	            	
+
+						res.location = new Location("");//provider name is unnecessary
+						res.location.setLatitude(latitude);
+						res.location.setLongitude(longitude);
+						res.location.setTime(new Date().getTime());
+						//We do not know bearing and accuracy
+	            	}
+
 	                if (adrs != null) {                	
 	                	
 	                	res.setCountryCode(adrs.getCountryCode());
@@ -8317,6 +8340,22 @@ public final class ToolBox {
 			}
 		}
 		
+		return false;
+	}
+
+	/**
+	 * Returns TRUE if location service is enabled and GPS is also enabled.
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static boolean location_checkGPSAvalibility(Context context) {
+		LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		if(locationManager!=null) {
+			return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+		}
+
 		return false;
 	}
 
@@ -9109,26 +9148,55 @@ public final class ToolBox {
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static void enableStrictMode(boolean all) {
-		
+		enableStrictMode(all, false, false);
+	}
+
+	/**
+	 * Use this method to get warned in the logcat when an
+	 * operation that should be done outside of the UI thread
+	 * is done in it. A sympton of this:
+	 * <br><br>
+	 * "Choreographer(abc): Skipped xx frames! The application may be doing too much work on its main thread."
+	 * <br><br>
+	 * It also stablishes the VmPolicy detecting leaked SQL
+	 * object and leaked closable objects with the penalty of
+	 * logging them and killing the whole process on violation.
+	 * <br><br>
+	 * See: <a href="http://developer.android.com/intl/es/reference/android/os/StrictMode.html">StricMode</a>
+	 * <br><br>
+	 * <b>Note</b>: This method requires API level 11 or greater.
+	 *
+	 * @param all	If set to TRUE, all detectable problems are watched.
+	 * 				If set to FALSE, only disk read/write and network
+	 * 				operations are watched.
+	 * @param disableDiskReadWarning
+	 * @param disableDiskWriteWarning
+	 */
+	public static void enableStrictMode(boolean all, boolean disableDiskReadWarning, boolean disableDiskWriteWarning) {
 		//ThreadPolicy tPolicy = new StrictMode.ThreadPolicy.Builder();
 		StrictMode.ThreadPolicy.Builder tPolicyBuilder = new StrictMode.ThreadPolicy.Builder();
 		if(all) {
 			tPolicyBuilder.detectAll();
 		}else{
-			tPolicyBuilder.detectDiskReads()
-				.detectDiskWrites()
-        		.detectNetwork()
-        		.penaltyLog();
-		}        
+			tPolicyBuilder.detectNetwork()
+					.penaltyLog();
+
+			if(!disableDiskReadWarning){
+				tPolicyBuilder.detectDiskReads();
+			}
+			if(!disableDiskWriteWarning){
+				tPolicyBuilder.detectDiskWrites();
+			}
+		}
 		StrictMode.setThreadPolicy(tPolicyBuilder.build());
-		
+
 		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-		        .detectLeakedSqlLiteObjects()
-		        .detectLeakedClosableObjects()
-		        .penaltyLog()
-		        .penaltyDeath()
-		        .build());
-				
+				.detectLeakedSqlLiteObjects()
+				.detectLeakedClosableObjects()
+				.penaltyLog()
+				.penaltyDeath()
+				.build());
+
 		Log.i(TAG, "StrictMode enabled!");
 	}
 	

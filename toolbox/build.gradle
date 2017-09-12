@@ -8,7 +8,7 @@ apply plugin: "com.jfrog.bintray"
 // (change to a new version every new library release)
 //
 // 1.- Change version to a new one.
-version = "1.0.5"
+version = "1.1.6"
 // 1.- First run "Gradle->Other->Install" to generate Maven stuff.
 //     (it will run task javadocJar and sourcesJar leaving artifacts in $buildDir/libs)
 // 2.- Second, execute "Gradle->Publishing->bintrayUpload" to upload the library to JCenter
@@ -22,7 +22,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 5
-        versionName "1.0.5"
+        versionName "1.1.6"
         //multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //signingConfig signingConfigs.config

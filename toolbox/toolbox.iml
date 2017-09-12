@@ -103,7 +103,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/serialized-form.html" />
       <excludeFolder url="file://$MODULE_DIR$/build/stylesheet.css" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
-      <excludeFolder url="jar://$MODULE_DIR$/build/toolbox-1.0.3-sources.jar!/" />
     </content>
     <orderEntry type="jdk" jdkName="Android API 26 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

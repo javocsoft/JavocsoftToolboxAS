@@ -30,6 +30,7 @@ import android.util.Log;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -68,6 +69,9 @@ public class AdBase extends Fragment {
         return requestAdsInterstitial(activity);
     }
 
+    protected AdRequest interstitialRewardedVideoAdRequest(RewardedVideoAd adView, Activity activity){
+        return requestAdsInterstitial(activity);
+    }
 
 
     //PRIVATE AND AUXILIAR METHODS

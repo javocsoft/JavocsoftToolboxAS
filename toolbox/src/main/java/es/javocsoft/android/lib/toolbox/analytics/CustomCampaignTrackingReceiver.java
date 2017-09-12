@@ -117,8 +117,9 @@ public class CustomCampaignTrackingReceiver extends BroadcastReceiver {
         //Do something if the user specifies.
         if(onCampaignInfoReceivedCallback!=null) {
         	Log.i(ToolBox.TAG, "Analytics Campaign Module: User specified an action for received Campaign information.");
-    		
-        	onCampaignInfoReceivedCallback.setCampaignData(info);
+
+			onCampaignInfoReceivedCallback.context = context;
+        	onCampaignInfoReceivedCallback.campaignInfo = info;
     		Thread tAck = new Thread(onCampaignInfoReceivedCallback);
     		tAck.start();
         }
@@ -138,7 +139,8 @@ public class CustomCampaignTrackingReceiver extends BroadcastReceiver {
      */
     public static abstract class OnProcessCampaignDataCallback extends Thread implements Runnable {
     	
-    	private CampaignInfo campaignInfo;
+    	protected CampaignInfo campaignInfo;
+		protected Context context;
     	
     	public OnProcessCampaignDataCallback() {}
     	
@@ -152,27 +154,5 @@ public class CustomCampaignTrackingReceiver extends BroadcastReceiver {
     	protected abstract void pre_task();
     	protected abstract void task();
     	protected abstract void post_task();
-    	
-    	public void setCampaignData(CampaignInfo campaignInfo) {
-    		this.campaignInfo = campaignInfo;
-    	}
-    	
-    	/**
-    	 * Gets the campaign information.
-    	 * 
-    	 * @return
-    	 */
-    	protected CampaignInfo getCampaignInfo() {
-    		return campaignInfo;
-    	}
-    	
-    	/**
-    	 * Gets the context.
-    	 * 
-    	 * @return
-    	 */
-    	protected Context getContext(){
-    		return NotificationModule.APPLICATION_CONTEXT;
-    	}
     }
 }

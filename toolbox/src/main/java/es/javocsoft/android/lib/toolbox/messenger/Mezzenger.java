@@ -107,7 +107,8 @@ public class Mezzenger {
 			@Override
 			public void run() {
 				Intent i = new Intent(action);
-				Log.i(TAG, " Messenger [" + name + "] connecting (" + action +") ...");
+				i.setPackage(context.getPackageName());
+				Log.i(TAG, " Messenger [" + name + "] connecting (" + action +"), package name: " + context.getPackageName() + " ...");
 		    	context.bindService(i, mConnection, Context.BIND_AUTO_CREATE);
 			}
 		});    	

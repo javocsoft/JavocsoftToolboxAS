@@ -93,7 +93,8 @@ import es.javocsoft.android.lib.toolbox.drive.listener.TBDriveEventService;
  * Google Drive integration.<br><br>
  * <ol>
  * 	<li>Authorize the application, see 
- * 	<a href="https://developers.google.com/drive/android/auth">Drive AUTH</a>.</li>
+ * 	<a href="https://developers.google.com/drive/android/auth">Drive AUTH</a>. Also enable Drive
+ * 	API for the project.</li>
  * 	<li>Get an instance of TBDrive by using getInstance()</li> 
  * 	<li>Add drive_onPause() in your Activity's onPause().</li>
  * 	<li>Add in your Activity's onActivityResult the call to drive_checkForResolutionResult().</li>

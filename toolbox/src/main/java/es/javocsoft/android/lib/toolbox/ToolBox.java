@@ -5291,7 +5291,7 @@ public final class ToolBox {
 			CookieManager cookieManager = CookieManager.getInstance();
 			String cookiesRAW = cookieManager.getCookie(siteName);
 			if(cookiesRAW!=null && cookiesRAW.length()>0) {
-				String[] cookies = cookiesRAW.split(",");
+				String[] cookies = cookiesRAW.split(";");
 				if(cookieName!=null && cookieName.length()>0){
 					for(String ck: cookies){
 						if(ck.contains(cookieName)){
@@ -5305,6 +5305,52 @@ public final class ToolBox {
 		}		
 		
 		return cookieValue;
+	}
+
+	/**
+	 * Creates a coookie
+	 *
+	 * @param siteName	The site where the cookie is in.
+	 * @param cookieName	The cookie mame.
+	 * @param expirationTime	Optional.
+	 */
+	public static void webview_createCookie(String siteName, String cookieName, String cookieValue, Date expirationTime) {
+
+		String cookie = webview_getCookie(siteName, cookieName);
+		if(cookie==null){
+			CookieManager cookieManager = CookieManager.getInstance();
+			cookieManager.setAcceptCookie(true);
+
+			String cookieString = null;
+			if(expirationTime!=null){
+				cookieString = cookieName + "=" + cookieValue + "; expires=" + expirationTime.toGMTString() + "; path=" + siteName;
+			}else{
+				cookieString = cookieName + "=" + cookieValue + "; path=" + siteName;
+			}
+
+			cookieManager.setCookie(siteName, cookieString);
+		}else{
+			if(LOG_ENABLE)
+				Log.i(TAG, "Cookie '" + cookieName + "' already exists.");
+		}
+	}
+
+	/**
+	 * Deletes a cookie.
+	 *
+	 * @param siteName	The site where the cookie is in.
+	 * @param cookieName	The cookie mame.
+	 */
+	public static void webview_deleteCookie(String siteName, String cookieName) {
+
+		String cookie = webview_getCookie(siteName, cookieName);
+		if(cookie!=null){
+			CookieManager cookieManager = CookieManager.getInstance();
+			cookieManager.setAcceptCookie(true);
+			//To delete it, we set an expiration time in the past.
+			String cookieString = cookieName + "=" + cookie + "; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=" + siteName;
+			cookieManager.setCookie(siteName, cookieString);
+		}
 	}
 	
 	/**

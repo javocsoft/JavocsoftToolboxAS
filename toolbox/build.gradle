@@ -19,6 +19,8 @@ android {
     buildToolsVersion "26.0.0"
 
     defaultConfig {
+        //Google Play services and Firebase for Android will support API level 14 at minimum
+        //https://android-developers.googleblog.com/2016/11/google-play-services-and-firebase-for-android-will-support-api-level-14-at-minimum.html
         minSdkVersion 14
         targetSdkVersion 26
         //https://developer.android.com/studio/publish/versioning.html

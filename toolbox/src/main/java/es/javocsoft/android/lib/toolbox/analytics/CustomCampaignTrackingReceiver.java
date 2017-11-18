@@ -71,6 +71,10 @@ import es.javocsoft.android.lib.toolbox.gcm.NotificationModule;
  *
  *  NOTE: Requires the permissions INTERNET and ACCESS_NETWORK_STATE.
  *
+ *  Use https://ga-dev-tools.appspot.com/campaign-url-builder/ or
+ *  https://developers.google.com/analytics/devguides/collection/android/v4/campaigns#google-play-url-builder
+ *  to generate the campaign url.
+ *
  *	@author JavocSoft 2014
  * 	@since  2014		
  */

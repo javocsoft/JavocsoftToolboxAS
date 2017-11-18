@@ -2876,6 +2876,7 @@ public final class ToolBox {
 			
 			//Set the notification sound
 			notifyBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+			//notifyBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
 			if(notSound){
 	        	if(notSoundRawId!=null && notSoundRawId.intValue()>0){
 	        		try {

@@ -53,11 +53,15 @@ public class AdInterstitial extends AdBase{
     /**
      * Shows a new interstitial.
      *
+     * Remember it needs the permission android.permission.INTERNET in your
+     * AndroidManifest.xml.
+     *
      * @param admobAdID    Your AdMob interstitial id.
      * @param activity
      * @param clickCallback See {@link es.javocsoft.android.lib.toolbox.ads.InterstitialAdsListener.OnInterstitialClickCallback}
      * @return
      */
+    @SuppressWarnings({"MissingPermission"})
     public InterstitialAd requestInterstitial(String admobAdID, Activity activity, InterstitialAdsListener.OnInterstitialClickCallback clickCallback) {
         Log.i(ToolBox.TAG, "Ads: Preparing a new interstitial.");
 

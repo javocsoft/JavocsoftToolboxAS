@@ -8,7 +8,7 @@ apply plugin: "com.jfrog.bintray"
 // (change to a new version every new library release)
 //
 // 1.- Change version to a new one.
-version = "1.2.1"
+version = "1.2.2"
 // 1.- First run "Gradle->Other->Install" to generate Maven stuff.
 //     (it will run task javadocJar and sourcesJar leaving artifacts in $buildDir/libs)
 // 2.- Second, execute "Gradle->Publishing->bintrayUpload" to upload the library to JCenter
@@ -25,7 +25,7 @@ android {
         targetSdkVersion 26
         //https://developer.android.com/studio/publish/versioning.html
         versionCode 5
-        versionName "1.2.1"
+        versionName "1.2.2"
         //multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //signingConfig signingConfigs.config
@@ -76,6 +76,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-base:11.0.2'
     compile 'com.google.android.gms:play-services-analytics:11.0.2'
     compile 'com.google.android.gms:play-services-gcm:11.0.2'
+    compile 'com.google.firebase:firebase-messaging:11.0.2'
+    compile 'com.google.firebase:firebase-core:11.0.2'
     compile 'com.google.android.gms:play-services-drive:11.0.2'
     compile 'com.google.android.gms:play-services-location:11.0.2'
     compile 'com.google.android.gms:play-services-maps:11.0.2'

@@ -22,10 +22,12 @@ We have the ToolBox.java main class but also there are other utility classes and
 * <i>Google Play Services</i>. A <b>Google Cloud Messaging</b> (GCM) module. very easy and fast to use and integrate in your project to allow receiving/sending push notifications from your application.
 * <i>Google Play Services</i>. An Ads module for <b>AdMob</b>. Easy to integrate in your project.
 * <i>Google Play Services</i>. Google <b>Analytics</b> v4 helper classes to have working the tracking of your app. Also with a <b>Custom Campaign Receiver</b> to be able to measure your ads campaigns (allowing also getting the campaign info giving the opportunity to do something when is received).
+* Firebase Analytics.
 * <i><b>SQLite</b></i>. Now library allows to use easily SQLite databases in your applications.
 * <i>Google Play Services. <b>Google Drive</b></i>. Now library allows to use in a really easy way the Drive to store your application data in the cloud.
 * <b>Notifications creation</b> using the last API maintaining retro-compatibility.
-* <b>GCM module</b>. This allows to integrate Android notifications in your project in a easy way.
+* <b>GCM module</b>. This allows to integrate Google Cloud Messaging (Push Notidications) in your project in a easy way.
+* <b>FCM module</b>. This allows to integrate Firebase Cloud Messaging (Push Notifications) in your project in a easy way.
 * A <b>GsonProcessor</b>. This class allows to work with JSON.
 * The <b>HTMLStyledTextView</b>. A class that allows to show HTML content in a textview.
 * An <b>animation factory</b> class set.

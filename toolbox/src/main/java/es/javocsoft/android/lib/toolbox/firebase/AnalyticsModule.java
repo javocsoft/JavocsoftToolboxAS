@@ -43,7 +43,7 @@ public class AnalyticsModule {
      *     <li>android.permission.INTERNET</li>
      *     <li>android.permission.ACCESS_NETWORK_STATE</li>
      *     <li>android.permission.WAKE_LOCK</li>
-     * </ul></ul>
+     * </ul>
      *
      * @param context The context
      */

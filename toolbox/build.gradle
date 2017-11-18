@@ -9,9 +9,10 @@ apply plugin: "com.jfrog.bintray"
 //
 // 1.- Change version to a new one.
 version = "1.2.2"
-// 1.- First run "Gradle->Other->Install" to generate Maven stuff.
+// 1.- First, run "Gradle->build->assembleRelease"
+// 2.- Second run "Gradle->Other->Install" to generate Maven stuff.
 //     (it will run task javadocJar and sourcesJar leaving artifacts in $buildDir/libs)
-// 2.- Second, execute "Gradle->Publishing->bintrayUpload" to upload the library to JCenter
+// 2.- Third, execute "Gradle->Publishing->bintrayUpload" to upload the library to JCenter
 // 3.- Check in https://bintray.com/javocsoft/maven/es.javocsoft%3Ajavocsofttoolbox
 
 android {
@@ -168,10 +169,16 @@ import java.nio.file.Paths
 import java.io.FileOutputStream
 import java.util.zip.ZipFile
 
+
+
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
+    //classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     classpath += configurations.compile
     classpath += configurations.provided
+    //FIX To avoid issues getting R class.
+    classpath += files("build/generated/source/r/release")
+    classpath += files("build/generated/source/buildConfig/release")
     //destinationDir = file("$buildDir/")
 
     afterEvaluate {

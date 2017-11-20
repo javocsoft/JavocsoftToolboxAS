@@ -19,15 +19,14 @@ We have the ToolBox.java main class but also there are other utility classes and
 * <i>SMS</i>. The class "<b>CMTInfoHelper</b>.java" that allows to download automatically the CMT short-numbers information. This will give you the possibility of knowing the owner company of a given short-number.
 * <b>HTTP Operations</b>. The class "HttpOperations.java" that allows to make HTTP POST/GET request easily.
 * <b>Facebook</b> Login, Share (SDK v2.1) helper classes to integrate Facebook Login easily in your apps.
-* <i>Google Play Services</i>. A <b>Google Cloud Messaging</b> (GCM) module. very easy and fast to use and integrate in your project to allow receiving/sending push notifications from your application.
-* <i>Google Play Services</i>. An Ads module for <b>AdMob</b>. Easy to integrate in your project.
+* <i>Google Play Services</i>. A <b>Google Cloud Messaging</b> (GCM) module (obsolete, use Firebase module instead). very easy and fast to use and integrate in your project to allow receiving/sending push notifications from your application.
+* <i>Google Play Services</i>. An Ads module for <b>AdMob</b>. Easy to integrate in your project. Capable of simple banner ads, interstitial and/or Video Rewarded Ads.
 * <i>Google Play Services</i>. Google <b>Analytics</b> v4 helper classes to have working the tracking of your app. Also with a <b>Custom Campaign Receiver</b> to be able to measure your ads campaigns (allowing also getting the campaign info giving the opportunity to do something when is received).
-* Firebase Analytics.
+* Firebase Analytics Module. For easy usage of the Firebase most common Analytics used events.
 * <i><b>SQLite</b></i>. Now library allows to use easily SQLite databases in your applications.
 * <i>Google Play Services. <b>Google Drive</b></i>. Now library allows to use in a really easy way the Drive to store your application data in the cloud.
 * <b>Notifications creation</b> using the last API maintaining retro-compatibility.
-* <b>GCM module</b>. This allows to integrate Google Cloud Messaging (Push Notidications) in your project in a easy way.
-* <b>FCM module</b>. This allows to integrate Firebase Cloud Messaging (Push Notifications) in your project in a easy way.
+* <b>Firebase Cloud Messaging (FCM) Module</b>. This allows to integrate Firebase Cloud Messaging (Push Notifications) in your project in a easy way. You should migrate from GCM to FCM if you still are using GCM.
 * A <b>GsonProcessor</b>. This class allows to work with JSON.
 * The <b>HTMLStyledTextView</b>. A class that allows to show HTML content in a textview.
 * An <b>animation factory</b> class set.
@@ -38,23 +37,23 @@ directly invoke the system-provided OpenSSL PRNG without explicit initialization
 * Methods to handle <b>new Android M (v6, API level 23) permissions usage approach</b> allowing to adapt the applications to new permissions system in Android. 
 * A <b>ready-to-use localization service</b>. This makes very easy to have a service running in background watching for any location or GPS status changes, see the Wiki :)
 * <b>Geofencing</b> supported.
+* Much more...
 
 This library is under development because i use it for all my projects so i am all time adding new features :).
 
 
 Greetings and i hope it will save time in your projects as it does for me.
 
-##Project Integration##
+## Project Integration ##
 
-This is an Android Studio Library project. To integrate in your project just put in your gradle
-build:
+This is an Android Studio Library project. To integrate in your project just put in your application build.gradle file:
 
-<pre>compile 'es.javocsoft:toolbox:1.0.1'</pre>
+<pre>compile 'es.javocsoft:toolbox:1.2.3'</pre>
 
 You can also clone the project "JavocsoftToolboxAS" from GitHub (https://github.com/javocsoft/JavocsoftToolboxAS.git).
 
 
-##LICENSE##
+## LICENSE ##
 
 Copyright 2010-2017 JavocSoft.
 

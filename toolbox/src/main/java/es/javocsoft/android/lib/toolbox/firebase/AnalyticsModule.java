@@ -58,7 +58,7 @@ public class AnalyticsModule {
     /**
      * Logs an application opened event into Firebase AnalyticsModule.
      */
-    public static void logOpenAppEvent() {
+    public void logOpenAppEvent() {
         Bundle bundle = new Bundle();
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle);
     }
@@ -69,7 +69,7 @@ public class AnalyticsModule {
      * @param name  The name of the selected element
      * @param type  The type of the selected element
      */
-    public static void logSelectContentEvent(String id, String name, String type) {
+    public void logSelectContentEvent(String id, String name, String type) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, type);
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
@@ -83,7 +83,7 @@ public class AnalyticsModule {
      *
      * @param screenName    The screen name.
      */
-    public static void logScreenEvent(String screenName) {
+    public void logScreenEvent(String screenName) {
         Bundle params = new Bundle();
         params.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "screen");
         params.putString(FirebaseAnalytics.Param.ITEM_NAME, screenName);
@@ -99,7 +99,7 @@ public class AnalyticsModule {
      * @param label     The custom label for the event.
      * @param value     Optional. A value for the event.
      */
-    public static void logEvent(String eventName, String category, String action, String label, Long value) {
+    public void logEvent(String eventName, String category, String action, String label, Long value) {
         Bundle params = new Bundle();
         params.putString("category", category);
         params.putString("action", action);

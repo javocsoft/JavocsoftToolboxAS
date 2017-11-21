@@ -227,9 +227,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 
+import javax.net.ssl.SSLContext;
+
 import es.javocsoft.android.lib.toolbox.encoding.Base64;
 import es.javocsoft.android.lib.toolbox.io.IOUtils;
 import es.javocsoft.android.lib.toolbox.javascript.WebviewJavascriptInterface;
+import es.javocsoft.android.lib.toolbox.net.ssl.SSLUtils;
 
 
 /**
@@ -3955,8 +3958,31 @@ public final class ToolBox {
 	 * @throws Exception
 	 */
 	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers) throws ConnectTimeoutException, SocketTimeoutException, Exception{
-    	return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, false);		
+    	return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, false, null, null);
     }
+
+	/**
+	 * Makes a Http operation.
+	 *
+	 * This method set a parameters to the request that avoid being waiting
+	 * for the server response or once connected, being waiting to receive
+	 * the data.
+	 *
+	 * @param method		Method type to execute. @see HTTP_METHOD.
+	 * @param url			URL of the request.
+	 * @param jsonDataKey	Optional. If not null, the JSON data will be sent under
+	 * 						this key in the POST. Otherwise the JSON data will be
+	 * 						directly all the body of the POST.
+	 * @param jsonData		Optional. The body content of the request (JSON).
+	 * @param headers		The headers to include in the request.
+	 * @param ignoreSSL		If set to TRUE, we ignore any error relative to
+	 * 						certificates when accessing with HTTPS.
+	 * @return The content of the request if there is one.
+	 * @throws Exception
+	 */
+	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, ignoreSSL, null, null);
+	}
 	
 	/**
 	 * Makes a Http operation.
@@ -3974,18 +4000,33 @@ public final class ToolBox {
 	 * @param headers		The headers to include in the request.
 	 * @param ignoreSSL		If set to TRUE, we ignore any error relative to 
 	 * 						certificates when accessing with HTTPS.
+	 * @param context		The context fropm is being called
+	 * @param certFile		A certificate (X509) to use when connecting. Only used if parameter
+	 *                      "ignoreSSL" is set to FALSE and if the parameter "context" is provided.
+	 *                      The certificate file must be in the "assets" folder of your application,
+	 *                      you can get the server certificate to connect with with the command line
+	 *                      "openssl s_client -debug -connect server:443" (without the quotes).
 	 * @return The content of the request if there is one.
 	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
-	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL, Context context, String certFile) throws ConnectTimeoutException, SocketTimeoutException, Exception{
     	String responseData = null;
 		
 		DefaultHttpClient httpclient = null;
 		
     	if(!ignoreSSL){
     		httpclient = new DefaultHttpClient();
-    	}else{
+    		if(context!=null && certFile!=null && certFile.length()>0){
+				SSLSocketFactory ssLSocketFactory = SSLUtils.getSslSocketFactory4CertFile(context, certFile);
+
+				//We allow any site with any certificate when using HTTPS
+				SchemeRegistry schemeRegistry = new SchemeRegistry();
+				schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+				schemeRegistry.register(new Scheme("https", ssLSocketFactory, 443));
+				ClientConnectionManager cm = new SingleClientConnManager(null, schemeRegistry);
+			}
+		}else{
     		//We allow any site with any certificate when using HTTPS
     		SSLSocketFactory sslSocketFactory = SSLSocketFactory.getSocketFactory();
     	    sslSocketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
@@ -4107,11 +4148,12 @@ public final class ToolBox {
     }
 	
 	 /**
-	  * Gets the status of the network service.
-	  * 
+	  * Gets the status of the network service. This method needs the
+	  * permission android.permission.ACCESS_NETWORK_STATE.
 	  * @param context
 	  * @return
 	  */
+	 @SuppressWarnings({"MissingPermission"})
 	 public static boolean net_isNetworkAvailable(Context context) {
 	 	    ConnectivityManager connectivityManager 
 	 	          = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -4254,7 +4296,8 @@ public final class ToolBox {
 	 * @param context
 	 * @return
 	 */
-	@SuppressLint("NewApi")
+	@SuppressLint({"NewApi"})
+	@SuppressWarnings({"MissingPermission"})
 	public static boolean net_isWifiOn(Context context) {
 		boolean res = false;
 		
@@ -7177,6 +7220,7 @@ public final class ToolBox {
 	 * @param context
 	 * @return The SIM subscriberId or NULL if is not available or empty if no SIM is detected.
 	 */
+	@SuppressWarnings({"MissingPermission"})
 	public static String device_getSIMIMSI(Context context) {
 		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 		if(tm!=null)
@@ -7225,6 +7269,7 @@ public final class ToolBox {
 	 * @param millis	The time to vibrate (milliseconds)
 	 */
 	@SuppressLint("NewApi")
+	@SuppressWarnings({"MissingPermission"})
 	public static void device_vibrate(Context context, long millis) {
 		try{		
 			Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
@@ -7259,6 +7304,7 @@ public final class ToolBox {
 	 *         to be able to stop the vibration.
 	 */
 	@SuppressLint("NewApi")
+	@SuppressWarnings({"MissingPermission"})
 	public static Vibrator device_vibrate(Context context, long[] pattern, boolean indefinitely) {
 		try{
 			Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
@@ -7697,11 +7743,13 @@ public final class ToolBox {
 	
 	/**
 	 * Gets the device mobile number if is available,
-	 * NULL otherwise.
+	 * NULL otherwise. This method needs one of these permissions: android.permission.READ_PHONE_STATE
+	 * or android.permission.READ_SMS or android.permission.READ_PHONE_NUMBERS.
 	 * 
 	 * @param context
 	 * @return
 	 */
+	@SuppressWarnings({"MissingPermission"})
 	public static String device_getDeviceMobileNumber(Context context) {
 		TelephonyManager tm = (TelephonyManager) context
 				.getSystemService(Context.TELEPHONY_SERVICE);
@@ -7722,6 +7770,7 @@ public final class ToolBox {
 	 * @param context
 	 * @return
 	 */
+	@SuppressWarnings({"MissingPermission"})
 	public static String device_getIMEI(Context context) {
 		TelephonyManager tm = (TelephonyManager) context
 				.getSystemService(Context.TELEPHONY_SERVICE);

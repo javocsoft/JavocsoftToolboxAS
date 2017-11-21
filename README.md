@@ -46,9 +46,22 @@ Greetings and i hope it will save time in your projects as it does for me.
 
 ## Project Integration ##
 
-This is an Android Studio Library project. To integrate in your project just put in your application build.gradle file:
+This is an Android Studio Library project. To integrate in your project, just add a new repository to your project build.gradle:
 
-<pre>compile 'es.javocsoft:toolbox:1.2.3'</pre>
+    allprojects {
+        repositories {
+            jcenter()
+            mavenCentral()
+            //JavocSoft Repository
+            maven {
+               url "https://dl.bintray.com/javocsoft/maven"
+            }
+        }
+    }
+
+and in your application build.gradle file:
+
+    compile 'es.javocsoft:toolbox:1.2.3'
 
 You can also clone the project "JavocsoftToolboxAS" from GitHub (https://github.com/javocsoft/JavocsoftToolboxAS.git).
 

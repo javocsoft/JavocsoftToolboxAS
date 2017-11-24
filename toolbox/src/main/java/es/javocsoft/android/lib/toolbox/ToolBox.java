@@ -88,6 +88,7 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
@@ -227,11 +228,14 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
 import es.javocsoft.android.lib.toolbox.encoding.Base64;
 import es.javocsoft.android.lib.toolbox.io.IOUtils;
 import es.javocsoft.android.lib.toolbox.javascript.WebviewJavascriptInterface;
+import es.javocsoft.android.lib.toolbox.net.ssl.DefaultSSLBypassHttpClient;
 import es.javocsoft.android.lib.toolbox.net.ssl.SSLUtils;
 
 
@@ -4014,27 +4018,30 @@ public final class ToolBox {
     	String responseData = null;
 		
 		DefaultHttpClient httpclient = null;
-		
-    	if(!ignoreSSL){
-    		httpclient = new DefaultHttpClient();
+
+		if(LOG_ENABLE)
+			Log.i(TAG, "net_httpclient_doAction. IgnoreSSL: " + ignoreSSL);
+
+		if(!ignoreSSL){
+			httpclient = new DefaultHttpClient();
     		if(context!=null && certFile!=null && certFile.length()>0){
+				if(LOG_ENABLE)
+					Log.i(TAG, "net_httpclient_doAction. Using certificate file: " + certFile +" from the specified context assets folder.");
+
 				SSLSocketFactory ssLSocketFactory = SSLUtils.getSslSocketFactory4CertFile(context, certFile);
 
-				//We allow any site with any certificate when using HTTPS
+				//We allow the access to the URL by using the specified certificate file over HTTPS
 				SchemeRegistry schemeRegistry = new SchemeRegistry();
 				schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
 				schemeRegistry.register(new Scheme("https", ssLSocketFactory, 443));
 				ClientConnectionManager cm = new SingleClientConnManager(null, schemeRegistry);
 			}
 		}else{
+			if(LOG_ENABLE)
+				Log.i(TAG, "net_httpclient_doAction. Bypassing any SSL issue in request to " + url);
+
     		//We allow any site with any certificate when using HTTPS
-    		SSLSocketFactory sslSocketFactory = SSLSocketFactory.getSocketFactory();
-    	    sslSocketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-    	    SchemeRegistry schemeRegistry = new SchemeRegistry();
-    	    schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-    	    schemeRegistry.register(new Scheme("https", sslSocketFactory, 443));
-    	    ClientConnectionManager cm = new SingleClientConnManager(null, schemeRegistry);
-    	    httpclient = new DefaultHttpClient(cm, null);
+    		httpclient = new DefaultSSLBypassHttpClient(context);
     	}
 		
     	// The time it takes to open TCP connection.

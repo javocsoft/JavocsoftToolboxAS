@@ -274,7 +274,8 @@ public final class ToolBox {
 		LEVEL_1(1), LEVEL_2(2), LEVEL_3(3), LEVEL_4(4), LEVEL_5(5), LEVEL_6(6),
 		LEVEL_7(7), LEVEL_8(8), LEVEL_9(9), LEVEL_10(10), LEVEL_11(11), LEVEL_12(12),
 		LEVEL_13(13), LEVEL_14(14), LEVEL_15(15), LEVEL_16(16), LEVEL_17(17), LEVEL_18(18),
-		LEVEL_19(19), LEVEL_20(20), LEVEL_21(21), LEVEL_22(22), LEVEL_23(23), LEVEL_24(24) ;
+		LEVEL_19(19), LEVEL_20(20), LEVEL_21(21), LEVEL_22(22), LEVEL_23(23), LEVEL_24(24),
+		LEVEL_25(25), LEVEL_26(26), LEVEL_27(27);
 
 		private int value;
 
@@ -1818,13 +1819,14 @@ public final class ToolBox {
      *  (avoids accidental exits)
      * 
 	  * @param context
-	  * @param backPressTimeInterval
-	  * @param message
-	  * @param defaultToast	If set to TRUE uses the default system toast.
+	  * @param backPressTimeInterval	The time interval within a second press causes application exit
+	  * @param message	The message to when pressed
+	  * @param defaultToast	Set to true to use Android default native toast message style
 	  * @param type Toast type {@link TOAST_TYPE} if not using default Toast.
 	  */
+	 @Deprecated
      public static void backPressedAction(Activity context, long backPressTimeInterval, String message, boolean defaultToast, TOAST_TYPE type) {
-        if((mBackPressed + backPressTimeInterval) > System.currentTimeMillis()) {
+        if(mBackPressed!=0 && (mBackPressed + backPressTimeInterval) > System.currentTimeMillis()) {
         	mBackPressed = 0l;
         	context.finish();
         }else{
@@ -1836,6 +1838,32 @@ public final class ToolBox {
         }
         mBackPressed = System.currentTimeMillis();
      }
+
+	/**
+	 * Ask for double tap to back to exit (avoids accidental exits). In this case. The parameter
+	 * "backLastPressed" is et to 0 when application exits, otherwise is set to current time in
+	 * millis.
+	 *
+	 * @param context
+	 * @param backLastPressed	When was last time pressed.
+	 * @param backPressTimeInterval	The time interval within a second press causes application exit
+	 * @param message	The message to when pressed
+	 * @param defaultToast	Set to true to use Android default native toast message style
+	 * @param type	Toast type {@link TOAST_TYPE} if not using default Toast.
+	 */
+	public static void backPressedAction(Activity context, long backLastPressed, long backPressTimeInterval, String message, boolean defaultToast, TOAST_TYPE type) {
+		if(backLastPressed!=0 && (backLastPressed + backPressTimeInterval) > System.currentTimeMillis()) {
+			backLastPressed = 0l;
+			context.finish();
+		}else{
+			if(defaultToast) {
+				Toast.makeText(context.getBaseContext(), message, Toast.LENGTH_SHORT).show();
+			}else{
+				toast_createCustomToast(context, message, type, false);
+			}
+		}
+		backLastPressed = System.currentTimeMillis();
+	}
      
      /** Custom Toast types */
      public static enum TOAST_TYPE {INFO, WARNING, ERROR, REMINDER};
@@ -3331,7 +3359,7 @@ public final class ToolBox {
 	 * @param iconId				The icon resource Id.
 	 * @param title					The title of the action.
 	 * @param extras				Optional. Some extras of the notification.
-	 * @return		The action object, see {@link Action}.
+	 * @return		The action object.
 	 */
 	public static Action
 		notification_createActionButton(Context context,

@@ -108,6 +108,8 @@ import android.app.Application;
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.Notification.Builder;
+import android.app.NotificationChannel;
+import android.app.NotificationChannelGroup;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -171,6 +173,7 @@ import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.provider.Settings.SettingNotFoundException;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
@@ -232,6 +235,8 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+import es.javocsoft.android.lib.toolbox.crypto.SHA1Encoding;
+import es.javocsoft.android.lib.toolbox.crypto.exception.SHA1EncodingException;
 import es.javocsoft.android.lib.toolbox.encoding.Base64;
 import es.javocsoft.android.lib.toolbox.io.IOUtils;
 import es.javocsoft.android.lib.toolbox.javascript.WebviewJavascriptInterface;
@@ -1200,8 +1205,225 @@ public final class ToolBox {
 		}		
 		
     }
-    
-    
+
+    // -- Android 26+ Notification channel related stuff -------------------------------------------
+
+	/**
+	 * <p>Starting in <b>Android 8.0</b> (API level 26+), all notifications must be assigned to a channel.
+	 * For each channel, you can set the visual and auditory behavior that is applied to all
+	 * notifications in that channel. Then, users can change these settings and decide which
+	 * notification channels from your app should be intrusive or visible at all.</p>
+	 *
+	 * <p>Creates an application notification channel that notifications can be posted. If no
+	 * channel Id is provided, a default application notification channel is created to handle
+	 * notifications to for the specified application context.</p>
+	 *
+	 * <p>You can use this method also to recover the channel, if was deleted previously, or to update
+	 * channel's name and/or descripption.</p>
+	 *
+	 * <p>Once channel is created, only the user can change its settings, developers can only
+	 * change its name and description.</p>
+	 *
+	 * <p>More about channels at <a href="https://developer.android.com/training/notify-user/channels.html">Notification Channels</a></p>.
+
+	 * @param context		The application context.
+	 * @param channelId		Optional. Your unique Notification Channel identifier. If not specified, a per application
+	 * 						default notification channel is created.
+	 * @param name			Optional. A name, visible for the user, for the notification channel. Default is the application name.
+	 * @param description	Optional. Some description for the notification channel.
+	 * @param importance	Optional. default is {@link NotificationManager#IMPORTANCE_DEFAULT}.
+	 *                      See <a href="https://developer.android.com/training/notify-user/channels.html#importance">Importance for notifications</a>.
+	 * @param notificationChannelGroupId 	optional. The notification channel group for this notification channel.
+	 *                                      <b>Note</b>: When assigning a group to a notification channel, once the
+	 *                                      channel is assigned to the notification manager, you
+	 *                                      cannot change the association between notification
+	 *                                      channel and group.
+	 *                                      See <a href="https://developer.android.com/training/notify-user/channels.html#CreateChannelGroup">Notification channel groups</a>
+	 */
+	public static NotificationChannel application_notificationChannelCreate (Context context, String channelId,
+																			 String name, String description,
+																			 Integer importance,
+																			 String notificationChannelGroupId) {
+
+		NotificationChannel mChannel = null;
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+			String CHANNEL_ID = channelId;
+			if(CHANNEL_ID==null || (CHANNEL_ID!=null && CHANNEL_ID.trim().length()==0)) {
+				//If no channel id is provided, we create an application default notification channel id.
+				CHANNEL_ID = application_notificationChanneGetDefaultlId(context);
+			}
+
+			NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+			mChannel = notificationManager.getNotificationChannel(CHANNEL_ID);
+			if(mChannel==null) {
+				String CHANNEL_NAME = name;
+				if(CHANNEL_NAME==null || (CHANNEL_NAME!=null && CHANNEL_NAME.trim().length()==0)) {
+					//If no channel id is provided, we create an application default notification channel name.
+					CHANNEL_NAME = application_notificationChannelGetDefaultName(context);
+				}
+
+				// Create the NotificationChannel
+				if(importance==null)
+					importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+				mChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance);
+				if(description!=null)
+					mChannel.setDescription(description);
+
+				if(notificationChannelGroupId!=null)
+					mChannel.setGroup(notificationChannelGroupId);
+			}else{
+				if(name!=null && name.length()>0)
+					mChannel.setName(name);
+
+				if(description!=null && description.length()>0)
+					mChannel.setDescription(description);
+			}
+
+			// Register the channel with the system; you can't change the importance or other
+			// notification behaviors after this
+			notificationManager.createNotificationChannel(mChannel);
+		}
+
+		return mChannel;
+	}
+
+	/**
+	 * Gets an application notification channel. If no channel Id is provided, the default
+	 * application notification channel is returned if is present.
+	 *
+	 * @param context		The application context.
+	 * @param channelId		Optional. Your unique Notification Channel identifier. If not specified,
+	 *                      application default notification channel is returned if is present.
+	 * @return
+	 */
+	public static NotificationChannel application_notificationChannelGet (Context context, String channelId) {
+		NotificationChannel mChannel = null;
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			String CHANNEL_ID = channelId;
+			if(CHANNEL_ID==null || (CHANNEL_ID!=null && CHANNEL_ID.trim().length()==0)) {
+				//If no channel id is provided, we create an application default notification channel id.
+				CHANNEL_ID = application_notificationChanneGetDefaultlId(context);
+			}
+
+			NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+			mChannel = notificationManager.getNotificationChannel(CHANNEL_ID);
+		}
+
+		return mChannel;
+	}
+
+	/**
+	 * <p>Deletes a notification channel. If no channel id is provided, it will delete application
+	 * default notification channel if is present.</p>
+	 *
+	 * <p>Have in mind that the notification
+	 * settings screen displays the number of deleted channels, as a spam prevention mechanism.</p>
+	 *
+	 * @param context	The application context
+	 * @param channelId		Optional. Your unique Notification Channel identifier. If not specified,
+	 *                      application default notification channel is used if is present.
+	 * @return
+	 */
+	public static boolean application_notificationChannelDelete (Context context, String channelId) {
+		boolean res = false;
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			String CHANNEL_ID = channelId;
+			if(CHANNEL_ID==null || (CHANNEL_ID!=null && CHANNEL_ID.trim().length()==0)) {
+				//If no channel id is provided, we create an application default notification channel id.
+				CHANNEL_ID = application_notificationChanneGetDefaultlId(context);
+			}
+
+			NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+			try {
+				notificationManager.deleteNotificationChannel(channelId);
+				res = true;
+			}catch(Exception e) {
+				if(LOG_ENABLE)
+					Log.e(TAG, "Notification channel could not be deleted (" + e.getMessage() + ")", e);
+			}
+
+		}else{
+			res = true;
+		}
+
+		return res;
+	}
+
+	/**
+	 * You can organize your notification channels into groups for the application system notifications
+	 * settings UI. See <a href="https://developer.android.com/training/notify-user/channels.html#CreateChannelGroup">Notification Channel Group</a>
+	 *
+	 * @param context		The application context
+	 * @param groupId		An ID that must be unique within your package
+	 * @param groupName		User-visible name for the channel group.
+	 * @return	The notification channel group.
+	 */
+	public static NotificationChannelGroup application_notificationChannelGroupCreate(Context context, String groupId, String groupName) {
+		NotificationChannelGroup notificationChannelGroup = null;
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationChannelGroup = new NotificationChannelGroup(groupId, groupName);
+			mNotificationManager.createNotificationChannelGroup(notificationChannelGroup);
+		}
+
+		return notificationChannelGroup;
+	}
+
+
+	/**
+	 * Returns a name for a default application notification channel. This name is not the name of
+	 * the Android default, system reserved, application channel
+	 * (<a href="https://developer.android.com/reference/android/app/NotificationChannel.html#DEFAULT_CHANNEL_ID">DEFAULT_CHANNEL_ID</a>.
+	 *
+	 * @param context	The context of the application
+	 * @return
+	 */
+	public static String application_notificationChannelGetDefaultName (Context context) {
+
+		String appName = application_nameInfo(context, context.getPackageName());
+		if(appName==null) {
+			String[] pkgParts = context.getPackageName().split(".");
+			appName = pkgParts[pkgParts.length-1];
+		}
+
+		return appName;
+	}
+
+	/**
+	 * Returns a channel id for a default application notification channel. This channel id is not
+	 * the id of he Android default, system reserved, application channel id
+	 * (<a href="https://developer.android.com/reference/android/app/NotificationChannel.html#DEFAULT_CHANNEL_ID">DEFAULT_CHANNEL_ID</a>.
+	 *
+	 * @param context	The context of the application
+	 * @return
+	 */
+	public static String application_notificationChanneGetDefaultlId (Context context) {
+
+		String appName = application_nameInfo(context, context.getPackageName());
+		if(appName==null) {
+			String[] pkgParts = context.getPackageName().split(".");
+			appName = pkgParts[pkgParts.length-1];
+		}
+
+		String channelId = null;
+		try {
+			channelId = SHA1Encoding.getSHA1(appName);
+		} catch (SHA1EncodingException e) {
+			if(LOG_ENABLE)
+				Log.w(TAG, "SHA1 Hash for notification channel id could not be generated (" + e.getMessage() + "), using application name as channel id." ,e);
+		}
+
+		return channelId;
+	}
+
+	// -- Android 26+ END Notification channel related stuff ---------------------------------------
+
     /**
      * Deletes a application desktop shortcut icon.
      *
@@ -2705,7 +2927,12 @@ public final class ToolBox {
      * 											clicked, you should use the "notifyID" parameter and set it as an extra of your
      * 											action to be able to close the notification from your application.
      * @param vibrate							<b>Note</b>: requires the permission android.permission.VIBRATE.
+	 *
+	 * @deprecated Since Android Oreo (v26+), notifications need a Notification channel to work properly.
+	 * Use instead {@link ToolBox#notification_create(Context, boolean, Integer, boolean, boolean, String, String, String, String, String, String, String, String, String, String, String, String, String, Class, Bundle, boolean, NOTIFICATION_PRIORITY, NOTIFICATION_STYLE, NOTIFICATION_LOCK_SCREEN_PRIVACY, String, RemoteViews, Integer, NOTIFICATION_PROGRESSBAR_STYLE, NotificationProgressBarRunnable, String, List, boolean, String)}. By default,
+	 * if still want to use this method, library will create an application default notification channel.
      */
+    @Deprecated
     public static void notification_create(Context context,
     		boolean notSound, Integer notSoundRawId, boolean forceSound,
     		boolean multipleNot, String groupMultipleNotKey,
@@ -2730,140 +2957,285 @@ public final class ToolBox {
     		String progressBarFinishText,
     		List<Action> actions, boolean vibrate
     		) {
-    	
-    	try{
-    		
-    		//1.- Prepare the intent that is launched by the notification
-    		//
-    		//This is the intent that runs in case the user clicks on the notification
-    		Intent notificationIntent = new Intent(context, notClazz);    		
-	        notificationIntent.setAction(notClazz.getName()+"."+notAction);
-	        if(extras==null){
-	        	extras = new Bundle();	        	
-	        }
-	        //Add a flag that can be used to know if the app is opened from a notification :)
-	        extras.putInt(NOTIFICATION_FLAG, 1);
-	        //We save in the intent all the info received.
-	        notificationIntent.putExtras(extras);
-	       	 
-	        if(actions!=null && actions.size()>0) {
-	        	for(Action action:actions){
-	        		Set<String> aExtrasKeys = action.getExtras().keySet();
-	        		Object value;
-	        		for(String key:aExtrasKeys) {
-	        			value = action.getExtras().get(key);
-	        			//TODO Improve this.
-	        			if(value instanceof String){
-	        				if(!extras.containsKey(key))
-	        					extras.putString(key, (String)value);
-	        			}else if(value instanceof Integer){
-	        				if(!extras.containsKey(key))
-	        					extras.putInt(key, (Integer)value);
-	        			}else if(value instanceof Boolean){
-	        				if(!extras.containsKey(key))
-	        					extras.putBoolean(key, (Boolean)value);
-	        			}else if(value instanceof Character){
-	        				if(!extras.containsKey(key))
-	        					extras.putChar(key, (Character)value);
-	        			}else if(value instanceof CharSequence){
-	        				if(!extras.containsKey(key))
-	        					extras.putCharSequence(key, (CharSequence)value);
-	        			}else if(value instanceof Double){
-	        				if(!extras.containsKey(key))
-	        					extras.putDouble(key, (Double)value);
-	        			}else if(value instanceof Float){
-	        				if(!extras.containsKey(key))
-	        					extras.putFloat(key, (Float)value);
-	        			}else if(value instanceof Long){
-	        				if(!extras.containsKey(key))
-	        					extras.putLong(key, (Long)value);
-	        			}else if(value instanceof Serializable){
-	        				if(!extras.containsKey(key))
-	        					extras.putSerializable(key, (Serializable)value);
+
+    		//Default notification channel
+			NotificationChannel mChannel = application_notificationChannelCreate(context, null, null, null, null, null);
+			String channelId = null;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && mChannel!=null) {
+				channelId = mChannel.getId();
+			}
+
+			notification_create(context, notSound, notSoundRawId, forceSound,
+					multipleNot, groupMultipleNotKey,
+					notAction,
+					notTitle, notMessage,
+					notTicker, notContentInfo,
+					bigContentTitle, bigContentText,
+					bigContentSummary,
+					bigContentImage,
+					bigStyleInboxContent, bigStyleInboxSeparator,
+					notBackgroundColor,
+					notClazz, extras,
+					wakeUp,
+					notPriority,
+					notStyle,
+					notVisibility,
+					largeIconResource,
+					contentView,
+					notifyID,
+					progressBarStyle,
+					progressBarRunnable,
+					progressBarFinishText,
+					actions, vibrate,
+					channelId);
+    }
+
+	/**
+	 * Creates and generates a new notification.<br><br>
+	 *
+	 * The notification has a Flag in the extras bundle (NOTIFICATION_FLAG) that is set to 1.
+	 * This class can be used afterwards to know within an app if the app was opened from
+	 * a notification checking this value.<br><br>
+	 *
+	 * See:<br><br>
+	 *
+	 * 	Notification:			http://developer.android.com/design/patterns/notifications.html<br>
+	 * 							http://developer.android.com/guide/topics/ui/notifiers/notifications.html<br>
+	 * 							Previous to Android 5.0 https://stuff.mit.edu/afs/sipb/project/android/docs/guide/topics/ui/notifiers/notifications.html
+	 * 	Notification.Builder:	http://developer.android.com/reference/android/app/Notification.Builder.html<br>
+	 * 	PendingIntent:			http://developer.android.com/reference/android/app/PendingIntent.html<br>
+	 * 	Big View Styles: 		http://developer.android.com/training/notify-user/expanded.html<br>
+	 * 							http://developer.android.com/reference/android/app/Notification.BigTextStyle.html<br>
+	 * 							http://developer.android.com/reference/android/app/Notification.InboxStyle.html<br>
+	 * 							http://developer.android.com/reference/android/support/v4/app/NotificationCompat.InboxStyle.html<br>
+	 *  Iconografy				http://developer.android.com/design/style/iconography.html#notification
+	 *
+	 * @param context							The context of the notification.
+	 * @param notSound							Set to TRUE to enable sound in the notification.
+	 * @param notSoundRawId						Optional. Set one to use this sound instead the default one.
+	 * @param forceSound						If enabled, sound is enabled avoiding any user setting.
+	 * @param multipleNot						Setting to True allows showing multiple notifications.
+	 * @param groupMultipleNotKey				If is set, multiple notifications can be grouped by this key.
+	 * @param notAction							Action for this notification
+	 * @param notTitle							The title of the notification.
+	 * @param notMessage						The message of the notification.
+	 * @param notTicker							Optional. Text that appears for only a few seconds when notification
+	 * 											raises. (text which is sent to accessibility services).
+	 * @param notContentInfo					Optional. A small piece of additional information pertaining
+	 * 											to this notification. The platform template will draw this on
+	 * 											the last line of the notification, at the far right (to the
+	 * 											right of a smallIcon if it has been placed there).
+	 * @param bigContentTitle					Optional. Android 4.1+. Overrides ContentTitle in the big form
+	 * 											of the template
+	 * @param bigContentText					Optional. Android 4.1+. Overrides ContentMessage in the big form
+	 * 											of the template
+	 * @param bigContentSummary					Optional. Android 4.1+. Adds a line at the bottom of the notification.
+	 * @param bigContentImage					Optional. In BigPicture Expandable notification type. Android 4.1+.
+	 * 											It is the image to show. Can be a drawable resourceId, an assets
+	 * 											resource file name or an URL to an image.
+	 * @param bigStyleInboxContent				Optional. In InboxStyle Expandable notification type. It is the
+	 * 											content of the notification for the expandable.
+	 * @param bigStyleInboxSeparator			Optional. In InboxStyle Expandable notification type. It is the
+	 * 											separator of each line in the received message (notMessage)
+	 * @param notBackgroundColor				Optional. Since Android 5.0+ notification icons must follow a design guidelines
+	 * 											to be showed correctly and allows to set the background color for
+	 * 											the icon. The specified color must be in <b>hexadecimal</b>, for
+	 * 											example "#ff6600".
+	 * @param notClazz							Class to be executed
+	 * @param extras							Extra information to attach to the notification to be available
+	 * 											in the application or the destination intent class (notClazz).
+	 * @param wakeUp							Set to TRUE to wake-up the device when notification is received.
+	 * @param notPriority						Optional. Select the desired notification priority.
+	 * 											See {@link NOTIFICATION_PRIORITY}
+	 * @param notStyle							Select the notification style. See {@link NOTIFICATION_STYLE}
+	 * @param notVisibility						Optional. The Default is PRIVATE. How and when the SystemUI reveals
+	 * 											the notification's presence and contents in untrusted situations
+	 * 											(namely, on the secure lockscreen). See {@link NOTIFICATION_LOCK_SCREEN_PRIVACY}
+	 * @param largeIconResource					Optional. Set one to use a larger icon for the notification. Can be a
+	 * 											drawable resourceId, an assets/raw resource file name or an URL to an image.
+	 * @param contentView						Optional. Avoid setting a background Drawable on your RemoteViews
+	 * 											object, because your text color may become unreadable.
+	 * 											See {@link RemoteViews} and How-To at
+	 * 											<a href="http://developer.android.com/guide/topics/ui/notifiers/notifications.html#CustomNotification">Information</a>
+	 * @param notifyID							Optional. If set, this Id will be used instead a generated one.
+	 * 											This is useful to reuse the notification in order to update the intent
+	 * 											instead of generate a new one.
+	 * @param progressBarStyle					Only for Android 4.0+ (API Level 14+). See {@link NOTIFICATION_PROGRESSBAR_STYLE}
+	 * @param progressBarRunnable				If parameter <code>progressBarStyle</code> is other than <code>NONE</code>,
+	 * 											this parameter is a {@link NotificationProgressBarRunnable} type. use it to do
+	 * 											some taks while notification progress bar is shown.
+	 * @param progressBarFinishText  			If parameter <code>progressBarStyle</code> is other than <code>NONE</code>, when
+	 * 											tasks is finished, parameter <code>progressBarRunnable</code>, this text is shown
+	 * 											in the notification.
+	 * @param actions							Optional. For Android 4.1+ (API Level 16+). If set, such actions will be presented
+	 * 											in the notification. <b>Remember</b> that to close the notification after action is
+	 * 											clicked, you should use the "notifyID" parameter and set it as an extra of your
+	 * 											action to be able to close the notification from your application.
+	 * @param vibrate							<b>Note</b>: requires the permission android.permission.VIBRATE.
+	 * @param notificationChannelId				Since Android Oreo (26+) version, a channel is required to show notifications. See
+	 *                                          <a href="https://developer.android.com/guide/topics/ui/notifiers/notifications.html#ManageChannels">Notification channel</a> and
+	 *                                          <a href="https://developer.android.com/training/notify-user/channels.html">Create and manage notification channels</a>.
+	 *
+	 */
+	public static void notification_create(Context context,
+										   boolean notSound, Integer notSoundRawId, boolean forceSound,
+										   boolean multipleNot, String groupMultipleNotKey,
+										   String notAction,
+										   String notTitle, String notMessage,
+										   String notTicker, String notContentInfo,
+										   String bigContentTitle, String bigContentText,
+										   String bigContentSummary,
+										   String bigContentImage,
+										   String bigStyleInboxContent, String bigStyleInboxSeparator,
+										   String notBackgroundColor,
+										   Class<?> notClazz, Bundle extras,
+										   boolean wakeUp,
+										   NOTIFICATION_PRIORITY notPriority,
+										   NOTIFICATION_STYLE notStyle,
+										   NOTIFICATION_LOCK_SCREEN_PRIVACY notVisibility,
+										   String largeIconResource,
+										   RemoteViews contentView,
+										   Integer notifyID,
+										   NOTIFICATION_PROGRESSBAR_STYLE progressBarStyle,
+										   NotificationProgressBarRunnable progressBarRunnable,
+										   String progressBarFinishText,
+										   List<Action> actions, boolean vibrate,
+										   String notificationChannelId
+	) {
+
+		try{
+
+			//1.- Prepare the intent that is launched by the notification
+			//
+			//This is the intent that runs in case the user clicks on the notification
+			Intent notificationIntent = new Intent(context, notClazz);
+			notificationIntent.setAction(notClazz.getName()+"."+notAction);
+			if(extras==null){
+				extras = new Bundle();
+			}
+			//Add a flag that can be used to know if the app is opened from a notification :)
+			extras.putInt(NOTIFICATION_FLAG, 1);
+			//We save in the intent all the info received.
+			notificationIntent.putExtras(extras);
+
+			if(actions!=null && actions.size()>0) {
+				for(Action action:actions){
+					Set<String> aExtrasKeys = action.getExtras().keySet();
+					Object value;
+					for(String key:aExtrasKeys) {
+						value = action.getExtras().get(key);
+						//TODO Improve this.
+						if(value instanceof String){
+							if(!extras.containsKey(key))
+								extras.putString(key, (String)value);
+						}else if(value instanceof Integer){
+							if(!extras.containsKey(key))
+								extras.putInt(key, (Integer)value);
+						}else if(value instanceof Boolean){
+							if(!extras.containsKey(key))
+								extras.putBoolean(key, (Boolean)value);
+						}else if(value instanceof Character){
+							if(!extras.containsKey(key))
+								extras.putChar(key, (Character)value);
+						}else if(value instanceof CharSequence){
+							if(!extras.containsKey(key))
+								extras.putCharSequence(key, (CharSequence)value);
+						}else if(value instanceof Double){
+							if(!extras.containsKey(key))
+								extras.putDouble(key, (Double)value);
+						}else if(value instanceof Float){
+							if(!extras.containsKey(key))
+								extras.putFloat(key, (Float)value);
+						}else if(value instanceof Long){
+							if(!extras.containsKey(key))
+								extras.putLong(key, (Long)value);
+						}else if(value instanceof Serializable){
+							if(!extras.containsKey(key))
+								extras.putSerializable(key, (Serializable)value);
 	        			/*}else if(value instanceof Size){
 	        				if(!extras.containsKey(key))
 	        					extras.putSize(key, (Size)value);*/
-	        			}else if(value instanceof Parcelable){
-	        				if(!extras.containsKey(key))
-	        					extras.putParcelable(key, (Parcelable)value);
-	        			}else if(value instanceof Byte){
-	        				if(!extras.containsKey(key))
-	        					extras.putByte(key, (Byte)value);
-	        			}else if(value instanceof String[]){
-	        				if(!extras.containsKey(key))
-	        					extras.putStringArray(key, (String[])value);
-	        			}else if(value instanceof byte[]){
-	        				if(!extras.containsKey(key))
-	        					extras.putByteArray(key, (byte[])value);
-	        			}
-	        		}					
+						}else if(value instanceof Parcelable){
+							if(!extras.containsKey(key))
+								extras.putParcelable(key, (Parcelable)value);
+						}else if(value instanceof Byte){
+							if(!extras.containsKey(key))
+								extras.putByte(key, (Byte)value);
+						}else if(value instanceof String[]){
+							if(!extras.containsKey(key))
+								extras.putStringArray(key, (String[])value);
+						}else if(value instanceof byte[]){
+							if(!extras.containsKey(key))
+								extras.putByteArray(key, (byte[])value);
+						}
+					}
 				}
-	        	notificationIntent.putExtras(extras);
-	        }
-	        
-	        //Set intent so it does not start a new activity
-	        //
-	        //Notes:
-	        //	- The flag FLAG_ACTIVITY_SINGLE_TOP makes that only one instance of the activity exists 
-	        //	  (each time the activity is summoned, instead onCreate(), a call to  onNewIntent() is made.
-	        //  - If we use FLAG_ACTIVITY_CLEAR_TOP, it will make that the last "snapshot"/TOP of the activity
-	        //	  be called. We do not want this because the HOME button will call this "snapshot". 
-	        //	  To avoid this behavior we use FLAG_ACTIVITY_BROUGHT_TO_FRONT that simply takes to 
-	        //	  foreground the activity.
-	        //
-	        //See http://developer.android.com/reference/android/content/Intent.html	        
-	        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT 
-	        							| Intent.FLAG_ACTIVITY_SINGLE_TOP 
-	        							| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	        
-		    // This ensures that the back button follows the recommended
-		    // convention for the back key.
-		    TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);		      
-		    // Adds the back stack for the Intent (but not the Intent itself)
-		    stackBuilder.addParentStack(notClazz);		      
-		    // Adds the Intent that starts the Activity to the top of the stack
-		    stackBuilder.addNextIntent(notificationIntent);
-	        		    
-	        int REQUEST_UNIQUE_ID = 0;
-	        if(notifyID!=null) {
-	        	//User specified a custom notification id so we use it
-	        	REQUEST_UNIQUE_ID = notifyID.intValue();
-	        }else{
-	        	if(multipleNot){
-	        		//user wants multiple notifications in the system tray.
-	        		if(groupMultipleNotKey!=null && groupMultipleNotKey.length()>0){
-	        			//We set specified custom collapse_key. This means that all 
-	        			//notifications will be collapsed in one, the most recent one.
-			       		REQUEST_UNIQUE_ID = groupMultipleNotKey.hashCode();
-			       	}else{
-			       		//We generate a new ID so this notification with no collapse key
-			       		//will produce a new notification in the system try.
-			       		if(random==null){
-		        			random = new Random();
-		        		}
-		        		REQUEST_UNIQUE_ID = random.nextInt();
-			       	}
-	        	}else{
-	        		//We use default, 0, value for all multiple notifications.	        		
-	        	}
-	        }
-	        
-	        PendingIntent intent = PendingIntent.getActivity(context, REQUEST_UNIQUE_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-	        
-	        
-	        //2.- Prepare the notification
-	        //
-    		//Get the application icon.
+				notificationIntent.putExtras(extras);
+			}
 
-	        /** 
-	         * Since Android 5.0+ notification icons must follow a design
-	         * guidelines to be showed correctly.
-	         * 
-	         * See: http://developer.android.com/design/style/iconography.html#notification 
-	         **/
-	    	int iconResId = notification_getApplicationIcon(context);
-	    	long when = System.currentTimeMillis();
-	        
+			//Set intent so it does not start a new activity
+			//
+			//Notes:
+			//	- The flag FLAG_ACTIVITY_SINGLE_TOP makes that only one instance of the activity exists
+			//	  (each time the activity is summoned, instead onCreate(), a call to  onNewIntent() is made.
+			//  - If we use FLAG_ACTIVITY_CLEAR_TOP, it will make that the last "snapshot"/TOP of the activity
+			//	  be called. We do not want this because the HOME button will call this "snapshot".
+			//	  To avoid this behavior we use FLAG_ACTIVITY_BROUGHT_TO_FRONT that simply takes to
+			//	  foreground the activity.
+			//
+			//See http://developer.android.com/reference/android/content/Intent.html
+			notificationIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+					| Intent.FLAG_ACTIVITY_SINGLE_TOP
+					| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+			// This ensures that the back button follows the recommended
+			// convention for the back key.
+			TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+			// Adds the back stack for the Intent (but not the Intent itself)
+			stackBuilder.addParentStack(notClazz);
+			// Adds the Intent that starts the Activity to the top of the stack
+			stackBuilder.addNextIntent(notificationIntent);
+
+			int REQUEST_UNIQUE_ID = 0;
+			if(notifyID!=null) {
+				//User specified a custom notification id so we use it
+				REQUEST_UNIQUE_ID = notifyID.intValue();
+			}else{
+				if(multipleNot){
+					//user wants multiple notifications in the system tray.
+					if(groupMultipleNotKey!=null && groupMultipleNotKey.length()>0){
+						//We set specified custom collapse_key. This means that all
+						//notifications will be collapsed in one, the most recent one.
+						REQUEST_UNIQUE_ID = groupMultipleNotKey.hashCode();
+					}else{
+						//We generate a new ID so this notification with no collapse key
+						//will produce a new notification in the system try.
+						if(random==null){
+							random = new Random();
+						}
+						REQUEST_UNIQUE_ID = random.nextInt();
+					}
+				}else{
+					//We use default, 0, value for all multiple notifications.
+				}
+			}
+
+			PendingIntent intent = PendingIntent.getActivity(context, REQUEST_UNIQUE_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+			//2.- Prepare the notification
+			//
+			//Get the application icon.
+
+			/**
+			 * Since Android 5.0+ notification icons must follow a design
+			 * guidelines to be showed correctly.
+			 *
+			 * See: http://developer.android.com/design/style/iconography.html#notification
+			 **/
+			int iconResId = notification_getApplicationIcon(context);
+			long when = System.currentTimeMillis();
+
 			// Create the notification
 			NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context);
 			notifyBuilder.setWhen(when);
@@ -2876,24 +3248,24 @@ public final class ToolBox {
 			}
 			if(notContentInfo!=null){
 				notifyBuilder.setContentInfo(notContentInfo); //Text (auxiliar) that appears to the right.
-			}			
+			}
 			if(largeIconResource!=null) {
 				Bitmap bIconLarge = media_getBitmap(context, largeIconResource);
 				if(bIconLarge!=null) {
 					notifyBuilder.setLargeIcon(bIconLarge);
-					
-					//In this case, in Android 5.0+, the application icon is 
+
+					//In this case, in Android 5.0+, the application icon is
 					//show in the bottom right of the large icon and should be
 					//one flat notification icon following:
 					//http://developer.android.com/design/style/iconography.html#notification
-					
+
 				}
-			}			
+			}
 			//Lock Screen Notifications, Android 5.0+ (API level 21+)
-	    	if(notVisibility!=null) {
-	    		notifyBuilder.setVisibility(notVisibility.getNumber());
-	    	}
-	    	//Priority of the notification
+			if(notVisibility!=null) {
+				notifyBuilder.setVisibility(notVisibility.getNumber());
+			}
+			//Priority of the notification
 			if(notPriority!=null) {
 				notifyBuilder.setPriority(notPriority.getNumber());
 			}else{
@@ -2905,59 +3277,59 @@ public final class ToolBox {
 					notifyBuilder.addAction(action);
 				}
 			}
-			
+
 			//Set the notification pending intent.
 			notifyBuilder.setContentIntent(intent);
-			
+
 			//Set the notification sound
 			notifyBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
 			//notifyBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
 			if(notSound){
-	        	if(notSoundRawId!=null && notSoundRawId.intValue()>0){
-	        		try {
-	        			//We try to use the specified notification sound
-	        			notifyBuilder.setSound(Uri.parse("android.resource://" + context.getApplicationContext().getPackageName() + "/" + notSoundRawId.intValue()));
-	        		}catch(Exception e){
-	        			if(LOG_ENABLE){
-	        				Log.w(TAG, "Custom sound " + notSoundRawId.intValue() + "could not be found. Using default.");
-	        			}
-	        		}
-	        	}
-	        }
-			
+				if(notSoundRawId!=null && notSoundRawId.intValue()>0){
+					try {
+						//We try to use the specified notification sound
+						notifyBuilder.setSound(Uri.parse("android.resource://" + context.getApplicationContext().getPackageName() + "/" + notSoundRawId.intValue()));
+					}catch(Exception e){
+						if(LOG_ENABLE){
+							Log.w(TAG, "Custom sound " + notSoundRawId.intValue() + "could not be found. Using default.");
+						}
+					}
+				}
+			}
+
 			//Conform the Notification style
-			//			
+			//
 			String bContentTitle = notTitle;
 			String bContentSummary = notMessage;
 			if(bigContentTitle!=null){
-				bContentTitle = bigContentTitle; 
+				bContentTitle = bigContentTitle;
 			}
 			if(bigContentSummary!=null){
-				bContentSummary = bigContentSummary; 
+				bContentSummary = bigContentSummary;
 			}
 			notifyBuilder.setContentTitle(notTitle);
-    	    notifyBuilder.setContentText(Html.fromHtml((notMessage!=null?notMessage:"")));
-			
+			notifyBuilder.setContentText(Html.fromHtml((notMessage!=null?notMessage:"")));
+
 			//Custom notification layout
-	    	//
-	    	//The height available for a custom notification layout depends on the 
-	    	//notification view:
-	    	// - Normal view layouts are limited to 64 dp.
-	    	// - Expanded view layouts are limited to 256 dp.
+			//
+			//The height available for a custom notification layout depends on the
+			//notification view:
+			// - Normal view layouts are limited to 64 dp.
+			// - Expanded view layouts are limited to 256 dp.
 			if(notStyle==NOTIFICATION_STYLE.CUSTOM_STYLE) {
-				if(contentView!=null) {				
-					notifyBuilder.setContent(contentView);					
+				if(contentView!=null) {
+					notifyBuilder.setContent(contentView);
 				}
 			}else if(notStyle==NOTIFICATION_STYLE.EXPANDABLE_BIG_PICTURE_STYLE) {
 				Bitmap bContentImage = media_getBitmap(context, bigContentImage);
-				
+
 				notifyBuilder.setStyle(
 						new NotificationCompat.BigPictureStyle()
-							.setBigContentTitle(bContentTitle)
-							.setSummaryText(bContentSummary)
-							.bigPicture((bContentImage!=null?bContentImage:null)) // Add the big picture to the style.
+								.setBigContentTitle(bContentTitle)
+								.setSummaryText(bContentSummary)
+								.bigPicture((bContentImage!=null?bContentImage:null)) // Add the big picture to the style.
 				);
-				
+
 			}else if(notStyle==NOTIFICATION_STYLE.EXPANDABLE_BIG_TEXT_STYLE) {
 				String bsContentText = "";
 				String nShortMessage = (notMessage!=null?notMessage:"");
@@ -2969,26 +3341,26 @@ public final class ToolBox {
 						nShortMessage = notMessage.substring(0, 12) + "...";
 					}*/
 				}
-				
+
 				notifyBuilder.setStyle(
-						new NotificationCompat.BigTextStyle()						
-							.setBigContentTitle(bContentTitle)
-							.setSummaryText(bContentSummary)
-							.bigText(Html.fromHtml(bsContentText))
-						);
-				
+						new NotificationCompat.BigTextStyle()
+								.setBigContentTitle(bContentTitle)
+								.setSummaryText(bContentSummary)
+								.bigText(Html.fromHtml(bsContentText))
+				);
+
 				notifyBuilder.setContentText(Html.fromHtml(nShortMessage));
-				
+
 			}else if(notStyle==NOTIFICATION_STYLE.EXPANDABLE_INBOX_STYLE){
 				//Prepare the style
-				NotificationCompat.InboxStyle iStyle = new NotificationCompat.InboxStyle();					
+				NotificationCompat.InboxStyle iStyle = new NotificationCompat.InboxStyle();
 				iStyle.setBigContentTitle(bContentTitle);
 				iStyle.setSummaryText(bContentSummary);
-				
-				//Now we try to get lines for the style. Each line should be separated 
+
+				//Now we try to get lines for the style. Each line should be separated
 				//in the message string by some separation character.
 				int nLines = 1;
-				if(bigStyleInboxSeparator!=null && bigStyleInboxContent!=null && 
+				if(bigStyleInboxSeparator!=null && bigStyleInboxContent!=null &&
 						bigStyleInboxContent.length()>0) {
 					//Prepare all lines from the received message.
 					String[] lines = bigStyleInboxContent.split(bigStyleInboxSeparator);
@@ -3001,80 +3373,103 @@ public final class ToolBox {
 					//single line.
 					iStyle.addLine(notMessage);
 				}
-				
+
 				notifyBuilder.setStyle(iStyle);
 				//To show the number of lines
-				notifyBuilder.setNumber(nLines);				
-				
+				notifyBuilder.setNumber(nLines);
+
 			}else if(notStyle==NOTIFICATION_STYLE.NORMAL_STYLE){
 				//Some other initializations
 			}
-			
-			
+
+
 			//This makes the device to wake-up is is idle with the screen off.
-	        if(wakeUp){
-	        	powersaving_wakeUp(context);
-	        }
-	        
-	        NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-	        
-	        //We check if the sound is disabled to enable just for a moment
-	        AudioManager amanager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
-	        int previousAudioMode = amanager.getRingerMode();
-	        if(forceSound) {
-		        if(notSound && previousAudioMode!=AudioManager.RINGER_MODE_NORMAL){	        	
-		        	amanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-		        }
-	        }
-	        
-	        if(progressBarStyle!=null && 
-	        		progressBarRunnable!=null && 
-	        		(progressBarRunnable instanceof NotificationProgressBarRunnable)) {
-	        	
-	        	switch (progressBarStyle) {
+			if(wakeUp){
+				powersaving_wakeUp(context);
+			}
+
+
+			NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+			//Since Android 26+ (Oreo), notifications requires a notification channel for the notifications. If no
+			//notification channel is set, notifications are not show.
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				if(notificationChannelId==null || (notificationChannelId!=null && notificationChannelId.length()==0) ||
+						(notificationChannelId!=null && notificationManager.getNotificationChannel(notificationChannelId)==null)){
+					Log.w(TAG, "Notification channel not specified, generating an application default notification channel due to " +
+							"Android version (26+). See https://developer.android.com/training/notify-user/channels.html");
+
+					//Generating the default application notification channel.
+					NotificationChannel notificationChannel = application_notificationChannelCreate(context, null, null, null, null, null);
+					if(notificationChannel!=null) {
+						notificationChannelId = notificationChannel.getId();
+						notifyBuilder.setChannelId(notificationChannelId);
+					}else{
+						Log.w(TAG, "Default Notification channel for the application could not be generated. Notification is not going to be show by the system " +
+								"because no valid notification channel was found.");
+					}
+				}else{
+					notifyBuilder.setChannelId(notificationChannelId);
+				}
+			}
+
+			//We check if the sound is disabled to enable just for a moment
+			AudioManager amanager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+			int previousAudioMode = amanager.getRingerMode();
+			if(forceSound) {
+				if(notSound && previousAudioMode!=AudioManager.RINGER_MODE_NORMAL){
+					amanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+				}
+			}
+
+			if(progressBarStyle!=null &&
+					progressBarRunnable!=null &&
+					(progressBarRunnable instanceof NotificationProgressBarRunnable)) {
+
+				switch (progressBarStyle) {
 					case DETERMINATE:
-						progressBarRunnable.initialize(notificationManager, notifyBuilder, 
-			        			REQUEST_UNIQUE_ID, false, progressBarFinishText);						
+						progressBarRunnable.initialize(notificationManager, notifyBuilder,
+								REQUEST_UNIQUE_ID, false, progressBarFinishText);
 						progressBarRunnable.run();
 						break;
 					case INDETERMINATE:
-						progressBarRunnable.initialize(notificationManager, notifyBuilder, 
-			        			REQUEST_UNIQUE_ID, true, progressBarFinishText);
+						progressBarRunnable.initialize(notificationManager, notifyBuilder,
+								REQUEST_UNIQUE_ID, true, progressBarFinishText);
 						progressBarRunnable.run();
 						break;
 					case NONE:
 						//Show the notification to the user.
-				        //(Sets an ID for the notification, so it can be updated)
-				        notificationManager.notify(REQUEST_UNIQUE_ID, notifyBuilder.build());
+						//(Sets an ID for the notification, so it can be updated)
+						notificationManager.notify(REQUEST_UNIQUE_ID, notifyBuilder.build());
 				}
-	        }else{
-	        	//Show the notification to the user.
-		        //(Sets an ID for the notification, so it can be updated)
-		        notificationManager.notify(REQUEST_UNIQUE_ID, notifyBuilder.build());
-	        }
-	        
-	        //We restore the sound setting
-	        if(forceSound) {
-		        if(previousAudioMode!=AudioManager.RINGER_MODE_NORMAL){
-		        	//We wait a little so sound is played
-		        	try{
-			        	Thread.sleep(3000);
-			        }catch(Exception e){}		        
-		        }
-		        amanager.setRingerMode(previousAudioMode);
-	        }
-	        
-	        if(vibrate){
-	        	device_vibrate(context, 700);	        	
-	        }
-			
-	        Log.d(TAG, "Android Notification created.");
-	        
-    	}catch(Exception e) {
-    		if(LOG_ENABLE)
+			}else{
+				//Show the notification to the user.
+				//(Sets an ID for the notification, so it can be updated)
+				notificationManager.notify(REQUEST_UNIQUE_ID, notifyBuilder.build());
+			}
+
+			//We restore the sound setting
+			if(forceSound) {
+				if(previousAudioMode!=AudioManager.RINGER_MODE_NORMAL){
+					//We wait a little so sound is played
+					try{
+						Thread.sleep(3000);
+					}catch(Exception e){}
+				}
+				amanager.setRingerMode(previousAudioMode);
+			}
+
+			if(vibrate){
+				device_vibrate(context, 700);
+			}
+
+			Log.d(TAG, "Android Notification created.");
+
+		}catch(Exception e) {
+			if(LOG_ENABLE)
 				Log.e(TAG, "The notification could not be created (" +e.getMessage() + ")", e);
-    	}
-    }
+		}
+	}
     
     /**
      * Creates and generates a new notification.<br><br>
@@ -5831,6 +6226,34 @@ public final class ToolBox {
 		if(bundle!=null)
 			intent.putExtras(bundle);
 		
+		return intent;
+	}
+
+	/**
+	 * Returns an Intent to open the specified notification channel settings. If no channel id
+	 * is provided, application default notification channel settings, if is present,  will be show.
+	 *
+	 * @param context	The application context
+	 * @param channelId	Optional. Your unique Notification Channel identifier. If not specified, a per application
+	 * 						default notification channel is created.
+	 * @return
+	 */
+	public static Intent intent_notificationChannelSettingsOpen (Context context, String channelId) {
+		Intent intent = null;
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+
+			intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+
+			String CHANNEL_ID = channelId;
+			if(CHANNEL_ID==null || (CHANNEL_ID!=null && CHANNEL_ID.trim().length()==0)) {
+				//If no channel id is provided, we create an application default notification channel id.
+				CHANNEL_ID = application_notificationChannelGetDefaultName(context);
+			}
+			intent.putExtra(Settings.EXTRA_CHANNEL_ID, CHANNEL_ID);
+		}
+
 		return intent;
 	}
 	

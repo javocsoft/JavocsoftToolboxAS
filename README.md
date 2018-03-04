@@ -3,7 +3,7 @@ javocsoft-toolbox
 
 It is an Android commons utility library. For <b>HowTo</b> and <b>usage</b> see the [WiKi](https://github.com/javocsoft/JavocsoftToolboxAS/wiki).
 
-This library contains a set of useful functions, classes and modules ready to use.
+This library contains a set of useful functions, classes and modules ready to use for Android devices with API Level 14+.
 
 This project is a library for Android. While i was making my own projects i always tried to reuse the written code so i created this library. It was very useful so i decided to share it with all. The idea beyond is to make easier programming for Android :)
 

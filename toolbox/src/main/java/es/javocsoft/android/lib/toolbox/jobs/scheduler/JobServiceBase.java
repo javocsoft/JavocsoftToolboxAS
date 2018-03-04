@@ -1,4 +1,4 @@
-package es.javocsoft.android.lib.toolbox.jobexecutor;
+package es.javocsoft.android.lib.toolbox.jobs.scheduler;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -13,6 +13,8 @@ import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import es.javocsoft.android.lib.toolbox.ToolBox;
+import es.javocsoft.android.lib.toolbox.jobs.scheduler.JobServiceBase;
+import es.javocsoft.android.lib.toolbox.jobs.JobServiceSchedulerHelper;
 
 /**
  * Job Service base class. Whenever you need to use an scheduled job service

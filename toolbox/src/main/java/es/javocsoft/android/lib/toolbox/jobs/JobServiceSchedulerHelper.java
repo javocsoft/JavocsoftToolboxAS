@@ -1,4 +1,4 @@
-package es.javocsoft.android.lib.toolbox.jobexecutor;
+package es.javocsoft.android.lib.toolbox.jobs;
 
 import android.annotation.SuppressLint;
 import android.app.job.JobInfo;
@@ -17,6 +17,9 @@ import android.util.Log;
 import java.util.List;
 
 import es.javocsoft.android.lib.toolbox.ToolBox;
+import es.javocsoft.android.lib.toolbox.jobs.service.JobIntentServiceBase;
+import es.javocsoft.android.lib.toolbox.jobs.scheduler.JobServiceBase;
+import es.javocsoft.android.lib.toolbox.jobs.scheduler.JobExecutorIncomingMessageHandler;
 
 /**
  *  <p><b>Job Service scheduler helper</b> make easier thr usage of scheduled job services, see
@@ -31,7 +34,7 @@ import es.javocsoft.android.lib.toolbox.ToolBox;
  * Scheduler Helper.
  * <pre>{@code
  *  Handler jeh = new Handler(getApplicationContext().getMainLooper()){
- *       "@Override"
+ *       &#64;Override
  *       public void handleMessage(Message msg) {
  *           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
  *               switch (msg.what) {
@@ -130,6 +133,12 @@ import es.javocsoft.android.lib.toolbox.ToolBox;
  *  </p>
  *
  *  <p>More info at see <a href="https://developer.android.com/about/versions/oreo/background.html">Background Execution Limits</a></p>
+ *
+ *  <br><br>
+ * <b>About Android Doze and App Standby</b><br>
+ * Doze and App Standby manage the behavior of all apps running on Android 6.0 or higher, regardless
+ * whether they are specifically targeting API level 23. See more at
+ * <a href="https://developer.android.com/training/monitoring-device-state/doze-standby.html#testing_doze_and_app_standby">Android Doze and App Standby</a>.
  *
  * @author JavocSoft 2018
  * @version 1.0

@@ -1,4 +1,4 @@
-package es.javocsoft.android.lib.toolbox.jobexecutor;
+package es.javocsoft.android.lib.toolbox.jobs.service;
 
 import android.app.job.JobScheduler;
 import android.content.Context;
@@ -10,15 +10,16 @@ import android.util.Log;
 import es.javocsoft.android.lib.toolbox.ToolBox;
 
 /**
- *  <p>This class implements <b>{@link JobIntentService}</b> works in the same way as a Service
- *  however, it enqueues the work into the {@link JobScheduler} on compatible Android targets,
- *  handling the compatibility for you if is not present.</p>
+ *  <p>This class implements <b>{@link JobIntentService}</b>, JobIntentService works in the same way
+ *  as a Service however, it enqueues the work into the {@link JobScheduler} on compatible Android
+ *  targets, handling the compatibility for you if is not present.</p>
  *
- *  <p>If you want to use Job Scheduling, avoiding issues with modern versions of Android granting
- *  compatibility between older versions, do the following:</p>
+ *  <p>If you want to avoid issues with background limitations since Android Oreo (v26+) with your
+ *  current services, see {@link android.app.Service}, granting compatibility between new and older
+ *  versions, do the following:</p>
  *
- *  1.- {@link JobIntentService} needs Google Maven repository so you have to add it in your
- *  project build.gradle:
+ *  1.- Add dependencies. {@link JobIntentService} needs Google Maven repository so you have to add
+ *  it in your project build.gradle:
  *
  *  <pre>{@code
  *   allprojects {
@@ -36,9 +37,10 @@ import es.javocsoft.android.lib.toolbox.ToolBox;
  *      compile 'com.android.support:support-compat:26.0.0'
  *  }</pre>
  *
- *  2.- Create your service extending {@link JobIntentServiceBase} and implements the methods
- *  {@link JobIntentServiceBase#onStart()} and {@link JobIntentServiceBase#onStop()} to put in
- *  then your service stuff.<br><br>
+ *  2.- Create/Modifiy your service, extending now {@link JobIntentServiceBase}
+ *  and implements the methods {@link JobIntentServiceBase#onStart()}
+ *  and {@link JobIntentServiceBase#onStop()} to put in
+ *  them your service stuff.<br><br>
  *
  *  3.- Declare your service in your AndroidManifest.xml setting in it the permission
  *  "android.permission.BIND_JOB_SERVICE":

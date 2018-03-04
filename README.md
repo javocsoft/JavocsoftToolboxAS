@@ -37,9 +37,9 @@ directly invoke the system-provided OpenSSL PRNG without explicit initialization
 * Methods to handle <b>new Android M (v6, API level 23) permissions usage approach</b> allowing to adapt the applications to new permissions system in Android. 
 * A <b>ready-to-use localization service</b>. This makes very easy to have a service running in background watching for any location or GPS status changes, see the Wiki :)
 * <b>Geofencing</b> supported.
-* Job Scheduling helpers (Job Services), prepared for Android Oreo new limitations in background tasks. JobServiceSchedulerHelper and FirebaseJobDispatcherHelper.
+* <b>Job Scheduling</b> helpers (Job Services), prepared for Android Oreo new limitations in background tasks. JobServiceSchedulerHelper and FirebaseJobDispatcherHelper.
 * Base JobIntentService class. To make fully compatible in all Android versions your background services. 
-* Fingerprint helper class. To be able to authenticate using your fingerprint or to encrypt/decrypt some data with your fingerprint.
+* <b>Fingerprint</b> helper class. To be able to authenticate using your fingerprint or to encrypt/decrypt some data with your fingerprint.
 * Much more...
 
 This library is under development because i use it for all my projects so i am all time adding new features :).

@@ -2035,7 +2035,7 @@ public final class ToolBox {
      * Ask for double tap to back to exit.
      * (avoids accidental exits)
      */
-	 
+
 	 /**
 	  * Ask for double tap to back to exit.
      *  (avoids accidental exits)
@@ -2089,26 +2089,27 @@ public final class ToolBox {
      
      /** Custom Toast types */
      public static enum TOAST_TYPE {INFO, WARNING, ERROR, REMINDER};
-     
-     /**
-      * Creates a custom Toast.
-      * 
-      * @param context	The context
-      * @param message	The message.
-      * @param type		The custom toast type {@link TOAST_TYPE}
-      * @param centerOnScreen	Set to TRUE to center in the middle of 
-      * 						the screen.
-      */
-     @SuppressLint("InflateParams")
-	public static void toast_createCustomToast(Context context, String message, TOAST_TYPE type, boolean centerOnScreen) {
-    	 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
-    	 View linearLayout = inflater.inflate(R.layout.toast_view, null);
-    	 //View linearLayout = inflater.inflate(R.layout.toast_view, (ViewGroup) context.findViewById(R.id.toast_layout_root));
-    	 
-    	 //Customize view of the Toast
-    	 ImageView imageZone = (ImageView) linearLayout.findViewById(R.id.toastImage);    	 
-    	 int imgResourceId = R.drawable.info_tip;
-    	 switch (type) {
+
+	/**
+	 * Creates a custom Toast.
+	 *
+	 * @param context	The context
+	 * @param message	The message.
+	 * @param type		The custom toast type {@link TOAST_TYPE}
+	 * @param centerOnScreen	Set to TRUE to center in the middle of
+	 * 						the screen.
+	 * @param shortTime Set to TRUE to show the toast for a small period of time instead long one.
+	 */
+	@SuppressLint("InflateParams")
+	public static void toast_create(Context context, String message, TOAST_TYPE type, boolean centerOnScreen, boolean shortTime) {
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
+		View linearLayout = inflater.inflate(R.layout.toast_view, null);
+		//View linearLayout = inflater.inflate(R.layout.toast_view, (ViewGroup) context.findViewById(R.id.toast_layout_root));
+
+		//Customize view of the Toast
+		ImageView imageZone = (ImageView) linearLayout.findViewById(R.id.toastImage);
+		int imgResourceId = R.drawable.info_tip;
+		switch (type) {
 			case INFO:
 				imgResourceId = R.drawable.info_tip;
 				break;
@@ -2123,22 +2124,51 @@ public final class ToolBox {
 				break;
 			default:
 				break;
-    	 }
-    	 imageZone.setImageResource(imgResourceId);
-    	 
-    	 TextView textZone = (TextView) linearLayout.findViewById(R.id.toastText);
-    	 textZone.setText(message);
-    	 
-    	 //Create and show the toast.
-    	 Toast toast = new Toast(context);
-    	 if(centerOnScreen) {
-    		 toast.setGravity(Gravity.CENTER, toast.getXOffset() / 2, toast.getYOffset() / 2);
-    		//toast.setGravity(Gravity.BOTTOM, 0, 0);
-    	 }
-    	 toast.setDuration(Toast.LENGTH_SHORT);
-    	 toast.setView(linearLayout);
-    	 toast.show();
+		}
+		imageZone.setImageResource(imgResourceId);
+
+		TextView textZone = (TextView) linearLayout.findViewById(R.id.toastText);
+		textZone.setText(message);
+
+		//Create and show the toast.
+		Toast toast = new Toast(context);
+		if(centerOnScreen) {
+			toast.setGravity(Gravity.CENTER, toast.getXOffset() / 2, toast.getYOffset() / 2);
+			//toast.setGravity(Gravity.BOTTOM, 0, 0);
+		}
+		toast.setDuration((shortTime?Toast.LENGTH_SHORT:Toast.LENGTH_LONG));
+		toast.setView(linearLayout);
+		toast.show();
+	}
+
+     /**
+      * Creates a custom Toast.
+      * 
+      * @param context	The context
+      * @param message	The message.
+      * @param type		The custom toast type {@link TOAST_TYPE}
+      * @param centerOnScreen	Set to TRUE to center in the middle of 
+      * 						the screen.
+      */
+     @SuppressLint("InflateParams")
+	 public static void toast_createCustomToast(Context context, String message, TOAST_TYPE type, boolean centerOnScreen) {
+		 toast_create(context, message, type, centerOnScreen, false);
      }
+
+	/**
+	 * Creates a custom Toast.
+	 *
+	 * @param context	The context
+	 * @param message	The message.
+	 * @param type		The custom toast type {@link TOAST_TYPE}
+	 * @param centerOnScreen	Set to TRUE to center in the middle of
+	 * 						the screen.
+	 * @param shortTime Set to TRUE to show the toast for a small period of time instead long one.
+	 */
+	@SuppressLint("InflateParams")
+	public static void toast_createCustomToast(Context context, String message, TOAST_TYPE type, boolean centerOnScreen, boolean shortTime) {
+		toast_create(context, message, type, centerOnScreen, shortTime);
+	}
      
 	 /**
 	  * Creates an exit popup dialog.
@@ -2439,6 +2469,31 @@ public final class ToolBox {
 			 toast_createCustomToast(context, message, customToastType, centerOnScreen);
 		 }
 	 }
+
+	/**
+	 * Shows a Toast alert.
+	 *
+	 * @param context				The context.
+	 * @param message				The message to show
+	 * @param centerOnScreen		Set to TRUE to center on the screen.
+	 * @param defaultToastStyle	Set to true to use the default system Toast style.
+	 * @param customToastType		The custom toast type {@link TOAST_TYPE}
+	 * @param shortTime Set to TRUE to show the toast for a small period of time instead long one.
+	 */
+	public static void dialog_showToastAlert(Context context, String message,
+											 boolean centerOnScreen, boolean defaultToastStyle,
+											 TOAST_TYPE customToastType, boolean shortTime) {
+
+		if(defaultToastStyle) {
+			Toast msg = Toast.makeText(context, message, (shortTime?Toast.LENGTH_SHORT:Toast.LENGTH_LONG));
+			if(centerOnScreen){
+				msg.setGravity(Gravity.CENTER, msg.getXOffset() / 2, msg.getYOffset() / 2);
+			}
+			msg.show();
+		}else{
+			toast_createCustomToast(context, message, customToastType, centerOnScreen, shortTime);
+		}
+	}
 	 
 	 /**
 	  * The GPS enable request code when using "showGpsDisabledAlert()"
@@ -3470,6 +3525,331 @@ public final class ToolBox {
 				Log.e(TAG, "The notification could not be created (" +e.getMessage() + ")", e);
 		}
 	}
+
+	/**
+	 * Creates and generates a new notification for the provide PendingIntent.<br><br>
+	 *
+	 * See:<br><br>
+	 *
+	 * 	Notification:			http://developer.android.com/design/patterns/notifications.html<br>
+	 * 							http://developer.android.com/guide/topics/ui/notifiers/notifications.html<br>
+	 * 							Previous to Android 5.0 https://stuff.mit.edu/afs/sipb/project/android/docs/guide/topics/ui/notifiers/notifications.html
+	 * 	Notification.Builder:	http://developer.android.com/reference/android/app/Notification.Builder.html<br>
+	 * 	PendingIntent:			http://developer.android.com/reference/android/app/PendingIntent.html<br>
+	 * 	Big View Styles: 		http://developer.android.com/training/notify-user/expanded.html<br>
+	 * 							http://developer.android.com/reference/android/app/Notification.BigTextStyle.html<br>
+	 * 							http://developer.android.com/reference/android/app/Notification.InboxStyle.html<br>
+	 * 							http://developer.android.com/reference/android/support/v4/app/NotificationCompat.InboxStyle.html<br>
+	 *  Iconografy				http://developer.android.com/design/style/iconography.html#notification
+	 *
+	 * @param context							The context of the notification.
+	 * @param intent							The {@link PendingIntent} that will be launched when user clics on the notification.
+	 * @param notSound							Set to TRUE to enable sound in the notification.
+	 * @param notSoundRawId						Optional. Set one to use this sound instead the default one.
+	 * @param forceSound						If enabled, sound is enabled avoiding any user setting.
+	 * @param notTitle							The title of the notification.
+	 * @param notMessage						The message of the notification.
+	 * @param notTicker							Optional. Text that appears for only a few seconds when notification
+	 * 											raises. (text which is sent to accessibility services).
+	 * @param notContentInfo					Optional. A small piece of additional information pertaining
+	 * 											to this notification. The platform template will draw this on
+	 * 											the last line of the notification, at the far right (to the
+	 * 											right of a smallIcon if it has been placed there).
+	 * @param bigContentTitle					Optional. Android 4.1+. Overrides ContentTitle in the big form
+	 * 											of the template
+	 * @param bigContentText					Optional. Android 4.1+. Overrides ContentMessage in the big form
+	 * 											of the template
+	 * @param bigContentSummary					Optional. Android 4.1+. Adds a line at the bottom of the notification.
+	 * @param bigContentImage					Optional. In BigPicture Expandable notification type. Android 4.1+.
+	 * 											It is the image to show. Can be a drawable resourceId, an assets
+	 * 											resource file name or an URL to an image.
+	 * @param bigStyleInboxContent				Optional. In InboxStyle Expandable notification type. It is the
+	 * 											content of the notification for the expandable.
+	 * @param bigStyleInboxSeparator			Optional. In InboxStyle Expandable notification type. It is the
+	 * 											separator of each line in the received message (notMessage)
+	 * @param notBackgroundColor				Optional. Since Android 5.0+ notification icons must follow a design guidelines
+	 * 											to be showed correctly and allows to set the background color for
+	 * 											the icon. The specified color must be in <b>hexadecimal</b>, for
+	 * 											example "#ff6600".
+	 * @param wakeUp							Set to TRUE to wake-up the device when notification is received.
+	 * @param notPriority						Optional. Select the desired notification priority.
+	 * 											See {@link NOTIFICATION_PRIORITY}
+	 * @param notStyle							Select the notification style. See {@link NOTIFICATION_STYLE}
+	 * @param notVisibility						Optional. The Default is PRIVATE. How and when the SystemUI reveals
+	 * 											the notification's presence and contents in untrusted situations
+	 * 											(namely, on the secure lockscreen). See {@link NOTIFICATION_LOCK_SCREEN_PRIVACY}
+	 * @param largeIconResource					Optional. Set one to use a larger icon for the notification. Can be a
+	 * 											drawable resourceId, an assets/raw resource file name or an URL to an image.
+	 * @param contentView						Optional. Avoid setting a background Drawable on your RemoteViews
+	 * 											object, because your text color may become unreadable.
+	 * 											See {@link RemoteViews} and How-To at
+	 * 											<a href="http://developer.android.com/guide/topics/ui/notifiers/notifications.html#CustomNotification">Information</a>
+	 * @param notifyID							Optional. If set, the notification will be asigned this Id.
+	 * @param actions							Optional. For Android 4.1+ (API Level 16+). If set, such actions will be presented
+	 * 											in the notification. <b>Remember</b> that to close the notification after action is
+	 * 											clicked, you should use the "notifyID" parameter and set it as an extra of your
+	 * 											action to be able to close the notification from your application.
+	 * @param vibrate							<b>Note</b>: requires the permission android.permission.VIBRATE.
+	 * @param notificationChannelId				Since Android Oreo (26+) version, a channel is required to show notifications. See
+	 *                                          <a href="https://developer.android.com/guide/topics/ui/notifiers/notifications.html#ManageChannels">Notification channel</a> and
+	 *                                          <a href="https://developer.android.com/training/notify-user/channels.html">Create and manage notification channels</a>.
+	 *
+	 */
+	public static void notification_create_given_pendingintent(Context context, PendingIntent intent,
+										   boolean notSound, Integer notSoundRawId, boolean forceSound,
+										   String notTitle, String notMessage,
+										   String notTicker, String notContentInfo,
+										   String bigContentTitle, String bigContentText,
+										   String bigContentSummary,
+										   String bigContentImage,
+										   String bigStyleInboxContent, String bigStyleInboxSeparator,
+										   String notBackgroundColor,
+										   boolean wakeUp,
+										   NOTIFICATION_PRIORITY notPriority,
+										   NOTIFICATION_STYLE notStyle,
+										   NOTIFICATION_LOCK_SCREEN_PRIVACY notVisibility,
+										   String largeIconResource,
+										   RemoteViews contentView,
+										   Integer notifyID,
+										   List<Action> actions, boolean vibrate,
+										   String notificationChannelId
+	) {
+
+		try{
+
+			int REQUEST_UNIQUE_ID = 0;
+			if(notifyID!=null) {
+				//User specified a custom notification id so we use it
+				REQUEST_UNIQUE_ID = notifyID;
+			}
+
+			//2.- Prepare the notification
+			//
+			//Get the application icon.
+
+			/**
+			 * Since Android 5.0+ notification icons must follow a design
+			 * guidelines to be showed correctly.
+			 *
+			 * See: http://developer.android.com/design/style/iconography.html#notification
+			 **/
+			int iconResId = notification_getApplicationIcon(context);
+			long when = System.currentTimeMillis();
+
+			// Create the notification
+			NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context);
+			notifyBuilder.setWhen(when);
+			notifyBuilder.setSmallIcon(iconResId);
+			if(notBackgroundColor!=null && notBackgroundColor.length()>0 && notBackgroundColor.startsWith("#"))
+				notifyBuilder.setColor(Color.parseColor(notBackgroundColor));
+			notifyBuilder.setAutoCancel(true); //Make this notification automatically dismissed when the user touches it.
+			if(notTicker!=null) {
+				notifyBuilder.setTicker(notTicker); //Text that appears for only a few seconds when notification raises.
+			}
+			if(notContentInfo!=null){
+				notifyBuilder.setContentInfo(notContentInfo); //Text (auxiliar) that appears to the right.
+			}
+			if(largeIconResource!=null) {
+				Bitmap bIconLarge = media_getBitmap(context, largeIconResource);
+				if(bIconLarge!=null) {
+					notifyBuilder.setLargeIcon(bIconLarge);
+
+					//In this case, in Android 5.0+, the application icon is
+					//show in the bottom right of the large icon and should be
+					//one flat notification icon following:
+					//http://developer.android.com/design/style/iconography.html#notification
+
+				}
+			}
+			//Lock Screen Notifications, Android 5.0+ (API level 21+)
+			if(notVisibility!=null) {
+				notifyBuilder.setVisibility(notVisibility.getNumber());
+			}
+			//Priority of the notification
+			if(notPriority!=null) {
+				notifyBuilder.setPriority(notPriority.getNumber());
+			}else{
+				notifyBuilder.setPriority(NOTIFICATION_PRIORITY.DEFAULT.getNumber());
+			}
+			//Set the specified actions to the notification.
+			if(actions!=null && actions.size()>0){
+				for(Action action:actions){
+					notifyBuilder.addAction(action);
+				}
+			}
+
+			//Set the notification pending intent.
+			notifyBuilder.setContentIntent(intent);
+
+			//Set the notification sound
+			notifyBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+			//notifyBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+			if(notSound){
+				if(notSoundRawId!=null && notSoundRawId.intValue()>0){
+					try {
+						//We try to use the specified notification sound
+						notifyBuilder.setSound(Uri.parse("android.resource://" + context.getApplicationContext().getPackageName() + "/" + notSoundRawId.intValue()));
+					}catch(Exception e){
+						if(LOG_ENABLE){
+							Log.w(TAG, "Custom sound " + notSoundRawId.intValue() + "could not be found. Using default.");
+						}
+					}
+				}
+			}
+
+			//Conform the Notification style
+			//
+			String bContentTitle = notTitle;
+			String bContentSummary = notMessage;
+			if(bigContentTitle!=null){
+				bContentTitle = bigContentTitle;
+			}
+			if(bigContentSummary!=null){
+				bContentSummary = bigContentSummary;
+			}
+			notifyBuilder.setContentTitle(notTitle);
+			notifyBuilder.setContentText(Html.fromHtml((notMessage!=null?notMessage:"")));
+
+			//Custom notification layout
+			//
+			//The height available for a custom notification layout depends on the
+			//notification view:
+			// - Normal view layouts are limited to 64 dp.
+			// - Expanded view layouts are limited to 256 dp.
+			if(notStyle==NOTIFICATION_STYLE.CUSTOM_STYLE) {
+				if(contentView!=null) {
+					notifyBuilder.setContent(contentView);
+				}
+			}else if(notStyle==NOTIFICATION_STYLE.EXPANDABLE_BIG_PICTURE_STYLE) {
+				Bitmap bContentImage = media_getBitmap(context, bigContentImage);
+
+				notifyBuilder.setStyle(
+						new NotificationCompat.BigPictureStyle()
+								.setBigContentTitle(bContentTitle)
+								.setSummaryText(bContentSummary)
+								.bigPicture((bContentImage!=null?bContentImage:null)) // Add the big picture to the style.
+				);
+
+			}else if(notStyle==NOTIFICATION_STYLE.EXPANDABLE_BIG_TEXT_STYLE) {
+				String bsContentText = "";
+				String nShortMessage = (notMessage!=null?notMessage:"");
+				if(bigContentText!=null && bigContentText.length()>0){
+					bsContentText = bigContentText;
+				}else{
+					bsContentText = notMessage;
+					/*if(notMessage!=null && notMessage.length()>12) {
+						nShortMessage = notMessage.substring(0, 12) + "...";
+					}*/
+				}
+
+				notifyBuilder.setStyle(
+						new NotificationCompat.BigTextStyle()
+								.setBigContentTitle(bContentTitle)
+								.setSummaryText(bContentSummary)
+								.bigText(Html.fromHtml(bsContentText))
+				);
+
+				notifyBuilder.setContentText(Html.fromHtml(nShortMessage));
+
+			}else if(notStyle==NOTIFICATION_STYLE.EXPANDABLE_INBOX_STYLE){
+				//Prepare the style
+				NotificationCompat.InboxStyle iStyle = new NotificationCompat.InboxStyle();
+				iStyle.setBigContentTitle(bContentTitle);
+				iStyle.setSummaryText(bContentSummary);
+
+				//Now we try to get lines for the style. Each line should be separated
+				//in the message string by some separation character.
+				int nLines = 1;
+				if(bigStyleInboxSeparator!=null && bigStyleInboxContent!=null &&
+						bigStyleInboxContent.length()>0) {
+					//Prepare all lines from the received message.
+					String[] lines = bigStyleInboxContent.split(bigStyleInboxSeparator);
+					nLines = lines.length;
+					for(String line:lines) {
+						iStyle.addLine(Html.fromHtml(line));
+					}
+				}else{
+					//No separator character found so we show all the message in one
+					//single line.
+					iStyle.addLine(notMessage);
+				}
+
+				notifyBuilder.setStyle(iStyle);
+				//To show the number of lines
+				notifyBuilder.setNumber(nLines);
+
+			}else if(notStyle==NOTIFICATION_STYLE.NORMAL_STYLE){
+				//Some other initializations
+			}
+
+
+			//This makes the device to wake-up is is idle with the screen off.
+			if(wakeUp){
+				powersaving_wakeUp(context);
+			}
+
+
+			NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+			//Since Android 26+ (Oreo), notifications requires a notification channel for the notifications. If no
+			//notification channel is set, notifications are not show.
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				if(notificationChannelId==null || (notificationChannelId!=null && notificationChannelId.length()==0) ||
+						(notificationChannelId!=null && notificationManager.getNotificationChannel(notificationChannelId)==null)){
+					Log.w(TAG, "Notification channel not specified, generating an application default notification channel due to " +
+							"Android version (26+). See https://developer.android.com/training/notify-user/channels.html");
+
+					//Generating the default application notification channel.
+					NotificationChannel notificationChannel = application_notificationChannelCreate(context, null, null, null, null, null);
+					if(notificationChannel!=null) {
+						notificationChannelId = notificationChannel.getId();
+						notifyBuilder.setChannelId(notificationChannelId);
+					}else{
+						Log.w(TAG, "Default Notification channel for the application could not be generated. Notification is not going to be show by the system " +
+								"because no valid notification channel was found.");
+					}
+				}else{
+					notifyBuilder.setChannelId(notificationChannelId);
+				}
+			}
+
+			//We check if the sound is disabled to enable just for a moment
+			AudioManager amanager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+			int previousAudioMode = amanager.getRingerMode();
+			if(forceSound) {
+				if(notSound && previousAudioMode!=AudioManager.RINGER_MODE_NORMAL){
+					amanager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+				}
+			}
+
+			//Show the notification to the user.
+			//(Sets an ID for the notification, so it can be updated)
+			notificationManager.notify(REQUEST_UNIQUE_ID, notifyBuilder.build());
+
+			//We restore the sound setting
+			if(forceSound) {
+				if(previousAudioMode!=AudioManager.RINGER_MODE_NORMAL){
+					//We wait a little so sound is played
+					try{
+						Thread.sleep(3000);
+					}catch(Exception e){}
+				}
+				amanager.setRingerMode(previousAudioMode);
+			}
+
+			if(vibrate){
+				device_vibrate(context, 700);
+			}
+
+			Log.d(TAG, "Android Notification created.");
+
+		}catch(Exception e) {
+			if(LOG_ENABLE)
+				Log.e(TAG, "The notification could not be created (" +e.getMessage() + ")", e);
+		}
+	}
+
+
     
     /**
      * Creates and generates a new notification.<br><br>
@@ -4368,7 +4748,8 @@ public final class ToolBox {
 	
     
     /**
-	 * Makes a Http operation.
+	 * Makes a Http operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
 	 * 
 	 * This method set a parameters to the request that avoid being waiting 
 	 * for the server response or once connected, being waiting to receive 
@@ -4385,11 +4766,39 @@ public final class ToolBox {
 	 * @throws Exception
 	 */
 	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers) throws ConnectTimeoutException, SocketTimeoutException, Exception{
-    	return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, false, null, null);
+    	return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, false, null, null, CONNECTION_DEFAULT_TIMEOUT, CONNECTION_DEFAULT_DATA_RECEIVAL_TIMEOUT);
     }
 
 	/**
 	 * Makes a Http operation.
+	 *
+	 * This method set a parameters to the request that avoid being waiting
+	 * for the server response or once connected, being waiting to receive
+	 * the data.
+	 *
+	 * @param method		Method type to execute. @see HTTP_METHOD.
+	 * @param url			URL of the request.
+	 * @param jsonDataKey	Optional. If not null, the JSON data will be sent under
+	 * 						this key in the POST. Otherwise the JSON data will be
+	 * 						directly all the body of the POST.
+	 * @param jsonData		Optional. The body content of the request (JSON).
+	 * @param headers		The headers to include in the request.
+	 * @param connectionTimeOut	Optional. In milliseconds. The max time to wait to stablish a connection.
+	 *                          A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                          the timeout (usually 60 seconds).
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
+	 * @return The content of the request if there is one.
+	 * @throws Exception
+	 */
+	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, false, null, null, connectionTimeOut, readTimeOut);
+	}
+
+	/**
+	 * Makes a Http operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
 	 *
 	 * This method set a parameters to the request that avoid being waiting
 	 * for the server response or once connected, being waiting to receive
@@ -4408,9 +4817,69 @@ public final class ToolBox {
 	 * @throws Exception
 	 */
 	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL) throws ConnectTimeoutException, SocketTimeoutException, Exception{
-		return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, ignoreSSL, null, null);
+		return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, ignoreSSL, null, null, CONNECTION_DEFAULT_TIMEOUT, CONNECTION_DEFAULT_DATA_RECEIVAL_TIMEOUT);
 	}
-	
+
+	/**
+	 * Makes a Http operation.
+	 *
+	 * This method set a parameters to the request that avoid being waiting
+	 * for the server response or once connected, being waiting to receive
+	 * the data.
+	 *
+	 * @param method		Method type to execute. @see HTTP_METHOD.
+	 * @param url			URL of the request.
+	 * @param jsonDataKey	Optional. If not null, the JSON data will be sent under
+	 * 						this key in the POST. Otherwise the JSON data will be
+	 * 						directly all the body of the POST.
+	 * @param jsonData		Optional. The body content of the request (JSON).
+	 * @param headers		The headers to include in the request.
+	 * @param ignoreSSL		If set to TRUE, we ignore any error relative to
+	 * 						certificates when accessing with HTTPS.
+	 * @param connectionTimeOut	Optional. In milliseconds. The max time to wait to stablish a connection.
+	 *                          A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                          the timeout (usually 60 seconds).
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
+	 * @return The content of the request if there is one.
+	 * @throws Exception
+	 */
+	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, ignoreSSL, null, null, connectionTimeOut, readTimeOut);
+	}
+
+	/**
+	 * Makes a Http operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
+	 *
+	 * This method set a parameters to the request that avoid being waiting
+	 * for the server response or once connected, being waiting to receive
+	 * the data.
+	 *
+	 * @param method		Method type to execute. @see HTTP_METHOD.
+	 * @param url			URL of the request.
+	 * @param jsonDataKey	Optional. If not null, the JSON data will be sent under
+	 * 						this key in the POST. Otherwise the JSON data will be
+	 * 						directly all the body of the POST.
+	 * @param jsonData		Optional. The body content of the request (JSON).
+	 * @param headers		The headers to include in the request.
+	 * @param ignoreSSL		If set to TRUE, we ignore any error relative to
+	 * 						certificates when accessing with HTTPS.
+	 * @param context		The context fropm is being called
+	 * @param certFile		A certificate (X509) to use when connecting. Only used if parameter
+	 *                      "ignoreSSL" is set to FALSE and if the parameter "context" is provided.
+	 *                      The certificate file must be in the "assets" folder of your application,
+	 *                      you can get the server certificate to connect with with the command line
+	 *                      "openssl s_client -debug -connect server:443" (without the quotes).
+	 * @return The content of the request if there is one.
+	 * @throws Exception
+	 */
+	@SuppressWarnings("deprecation")
+	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL, Context context, String certFile) throws ConnectTimeoutException, SocketTimeoutException, Exception {
+		return net_httpclient_doAction(method, url, jsonDataKey, jsonData, headers, ignoreSSL, context, certFile, CONNECTION_DEFAULT_TIMEOUT, CONNECTION_DEFAULT_DATA_RECEIVAL_TIMEOUT);
+	}
+
 	/**
 	 * Makes a Http operation.
 	 * 
@@ -4433,11 +4902,17 @@ public final class ToolBox {
 	 *                      The certificate file must be in the "assets" folder of your application,
 	 *                      you can get the server certificate to connect with with the command line
 	 *                      "openssl s_client -debug -connect server:443" (without the quotes).
+	 * @param connectionTimeOut	Optional. In milliseconds. The max time to wait to stablish a connection.
+	 *                          A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                          the timeout (usually 60 seconds).
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
 	 * @return The content of the request if there is one.
 	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
-	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL, Context context, String certFile) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL, Context context, String certFile, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
     	String responseData = null;
 		
 		DefaultHttpClient httpclient = null;
@@ -4466,15 +4941,24 @@ public final class ToolBox {
     		//We allow any site with any certificate when using HTTPS
     		httpclient = new DefaultSSLBypassHttpClient(context);
     	}
-		
-    	// The time it takes to open TCP connection.
-		httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, CONNECTION_DEFAULT_TIMEOUT);
-        // Timeout when server does not send data.
-		httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, CONNECTION_DEFAULT_DATA_RECEIVAL_TIMEOUT);
+
+		// The time it takes to open TCP connection.
+    	if(connectionTimeOut!=null) {
+			httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeOut);
+			//httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, CONNECTION_DEFAULT_TIMEOUT);
+		}
+
+		// Timeout when server does not send data.
+		if(readTimeOut!=null) {
+			httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, readTimeOut);
+			//httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, CONNECTION_DEFAULT_DATA_RECEIVAL_TIMEOUT);
+		}
+
         // Some tuning that is not required for bit tests.
 		//httpclient.getParams().setParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false);
 		httpclient.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
-    	
+
+
     	HttpRequestBase httpMethod = null;    	
     	switch(method){
 			case POST:
@@ -4540,7 +5024,8 @@ public final class ToolBox {
     }
 	
 	/**
-	 * Makes a Http operation.
+	 * Makes a Http operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
 	 * 
 	 * This method set a parameters to the request that avoid being waiting 
 	 * for the server response or once connected, being waiting to receive 
@@ -4556,9 +5041,34 @@ public final class ToolBox {
 	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonData, Map<String, String> headers) throws ConnectTimeoutException, SocketTimeoutException, Exception{
 		return net_httpclient_doAction(method, url, null, jsonData, headers, false);
     }
-	
+
 	/**
 	 * Makes a Http operation.
+	 *
+	 * This method set a parameters to the request that avoid being waiting
+	 * for the server response or once connected, being waiting to receive
+	 * the data.
+	 *
+	 * @param method		Method type to execute. @See HTTP_METHOD.
+	 * @param url			Url of the request.
+	 * @param jsonData		The body content of the request (JSON). Can be null.
+	 * @param headers		The headers to include in the request.
+	 * @param connectionTimeOut	Optional. In milliseconds. The max time to wait to stablish a connection.
+	 *                          A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                          the timeout (usually 60 seconds).
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
+	 * @return The content of the request if there is one.
+	 * @throws Exception
+	 */
+	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonData, Map<String, String> headers, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		return net_httpclient_doAction(method, url, null, jsonData, headers, false, connectionTimeOut, readTimeOut);
+	}
+	
+	/**
+	 * Makes a Http operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
 	 * 
 	 * This method set a parameters to the request that avoid being waiting 
 	 * for the server response or once connected, being waiting to receive 
@@ -4576,6 +5086,29 @@ public final class ToolBox {
 	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonData, Map<String, String> headers, boolean ignoreSSL) throws ConnectTimeoutException, SocketTimeoutException, Exception{
 		return net_httpclient_doAction(method, url, null, jsonData, headers, ignoreSSL);
     }
+
+	/**
+	 * Makes a Http operation.
+	 *
+	 * This method set a parameters to the request that avoid being waiting
+	 * for the server response or once connected, being waiting to receive
+	 * the data.
+	 *
+	 * @param method		Method type to execute. @See HTTP_METHOD.
+	 * @param url			Url of the request.
+	 * @param jsonData		The body content of the request (JSON). Can be null.
+	 * @param headers		The headers to include in the request.
+	 * @param ignoreSSL		If set to TRUE, we ignore any error relative to
+	 * 						certificates when accessing with HTTPS.
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
+	 * @return The content of the request if there is one.
+	 * @throws Exception
+	 */
+	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonData, Map<String, String> headers, boolean ignoreSSL, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		return net_httpclient_doAction(method, url, null, jsonData, headers, ignoreSSL, connectionTimeOut, readTimeOut);
+	}
 	
 	 /**
 	  * Gets the status of the network service. This method needs the
@@ -5782,13 +6315,30 @@ public final class ToolBox {
 	}
 
 	/**
-	 * Creates a coookie
+	 * Creates a coookie. In this case the path of the cookie is set to "/".
 	 *
-	 * @param siteName	The site where the cookie is in.
+	 * @param siteName	The site (domain) where the cookie is in.
 	 * @param cookieName	The cookie mame.
+	 * @param cookieValue	The cookie value
 	 * @param expirationTime	Optional.
 	 */
 	public static void webview_createCookie(String siteName, String cookieName, String cookieValue, Date expirationTime) {
+
+		webview_createCookie(siteName, cookieName, cookieValue, expirationTime, null);
+	}
+
+	/**
+	 * Creates a cookie for the site name (domain) and a path. If the cookie already exists, the
+	 * cookie is not created, use {@link ToolBox#webview_getCookie(String, String)}  and
+	 * {@link ToolBox#webview_deleteCookie(String, String)} to check and/or delete previous cookie.
+	 *
+	 * @param siteName	The site (domain) where the cookie is in.
+	 * @param cookieName	The cookie mame.
+	 * @param cookieValue	The cookie value
+	 * @param expirationTime	If you set to a negative value to expire after user closes browser.
+	 * @param path	The path for this cookie, default is /
+	 */
+	public static void webview_createCookie(String siteName, String cookieName, String cookieValue, Date expirationTime, String path) {
 
 		String cookie = webview_getCookie(siteName, cookieName);
 		if(cookie==null){
@@ -5797,9 +6347,9 @@ public final class ToolBox {
 
 			String cookieString = null;
 			if(expirationTime!=null){
-				cookieString = cookieName + "=" + cookieValue + "; expires=" + expirationTime.toGMTString() + "; path=" + siteName;
+				cookieString = cookieName + "=" + cookieValue + "; expires=" + expirationTime.toGMTString() + "; path=" + (path!=null?path:"/");
 			}else{
-				cookieString = cookieName + "=" + cookieValue + "; path=" + siteName;
+				cookieString = cookieName + "=" + cookieValue + "; path=" + (path!=null?path:"/");
 			}
 
 			cookieManager.setCookie(siteName, cookieString);
@@ -9511,22 +10061,66 @@ public final class ToolBox {
 	 * @param geofenceList	The list of Geofences to watch.
 	 */
 	public static GeofencingRequest location_geofencesCreateTriggerRequest(List<Geofence> geofenceList) {
+		return location_geofencesCreateTriggerRequest(geofenceList, true, true, true);
+	}
+
+	/**
+	 * Creates a geofencing trigger request. This will make the location service
+	 * to launch geofencing events (enter/exit events) with the specified
+	 * geofence list. Look for geofences designed for specified transitions.
+	 *
+	 * <br>
+	 * See Geofences at <a href="http://developer.android.com/intl/es/training/location/geofencing.html">Google developer</a>.
+	 * <br><br>
+	 * Note:<br><br>
+	 *
+	 * Requires the permission ACCESS_FINE_LOCATION.
+	 *
+	 * @param geofenceList
+	 * @param triggerOnEnter
+	 * @param triggerOnExit
+	 * @param triggerOnDwell
+	 * @return
+	 */
+	public static GeofencingRequest location_geofencesCreateTriggerRequest(List<Geofence> geofenceList, boolean triggerOnEnter,
+																		   boolean triggerOnExit, boolean triggerOnDwell) {
 		GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-		//The GEOFENCE_TRANSITION_ENTER/GEOFENCE_TRANSITION_EXIT transition 
+		//The GEOFENCE_TRANSITION_ENTER/GEOFENCE_TRANSITION_EXIT transition
 		//triggers when a device enters/exits a geofence.
 		//
-		//Specifying INITIAL_TRIGGER_ENTER tells Location services that 
-		//GEOFENCE_TRANSITION_ENTER should be triggered if the the device is 
+		//Specifying INITIAL_TRIGGER_ENTER tells Location services that
+		//GEOFENCE_TRANSITION_ENTER should be triggered if the the device is
 		//already inside the geofence.
 		//
 		//In many cases, it may be preferable to use instead INITIAL_TRIGGER_DWELL,
-		//which triggers events only when the user stops for a defined duration 
+		//which triggers events only when the user stops for a defined duration
 		//within a geofence.
-	    builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER |
-				GeofencingRequest.INITIAL_TRIGGER_EXIT |
-				GeofencingRequest.INITIAL_TRIGGER_DWELL);
-	    builder.addGeofences(geofenceList);	    
-	    return builder.build();
+		if(triggerOnEnter && triggerOnExit && triggerOnDwell){ 				// ENTER|EXIT|DWELL
+			builder.setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER |
+					Geofence.GEOFENCE_TRANSITION_EXIT |
+					Geofence.GEOFENCE_TRANSITION_DWELL);
+		}else if(!triggerOnEnter && !triggerOnExit && !triggerOnDwell){ 	// NONE = ENTER
+			//At least when enter is notified.
+			builder.setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER);
+		}else if(triggerOnEnter && triggerOnExit && !triggerOnDwell){ 		// ENTER|EXIT
+			builder.setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER |
+					Geofence.GEOFENCE_TRANSITION_EXIT);
+		} else if(triggerOnEnter && !triggerOnExit && triggerOnDwell) { 	// ENTER|DWELL
+			builder.setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER |
+					Geofence.GEOFENCE_TRANSITION_DWELL);
+		}else if(triggerOnEnter && !triggerOnExit && !triggerOnDwell){ 		// ENTER
+			builder.setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER);
+		}else if(!triggerOnEnter && triggerOnExit && triggerOnDwell){ 		// EXIT|DWELL
+			builder.setInitialTrigger(Geofence.GEOFENCE_TRANSITION_EXIT |
+					Geofence.GEOFENCE_TRANSITION_DWELL);
+		}else if(!triggerOnEnter && triggerOnExit && !triggerOnDwell) { 	// EXIT
+			builder.setInitialTrigger(Geofence.GEOFENCE_TRANSITION_EXIT);
+		}else if(!triggerOnEnter && !triggerOnExit && triggerOnDwell) { 	// DWELL
+			builder.setInitialTrigger(Geofence.GEOFENCE_TRANSITION_DWELL);
+		}
+
+		builder.addGeofences(geofenceList);
+		return builder.build();
 	}
 	
 	/**

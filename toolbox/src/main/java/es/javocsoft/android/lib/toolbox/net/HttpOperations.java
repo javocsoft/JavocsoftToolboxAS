@@ -58,7 +58,8 @@ public class HttpOperations {
 	}
 	
 	/**
-	 * A POST operation.
+	 * A POST operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
 	 * 
 	 * @param url			Url for the POST operation
 	 * @param data			JSON data
@@ -90,9 +91,50 @@ public class HttpOperations {
 		
 		return res;
 	}
-	
+
 	/**
 	 * A POST operation.
+	 *
+	 * @param url			Url for the POST operation
+	 * @param data			JSON data
+	 * @param headersData	Optional. Headers for the request.
+	 * @param ignoreSSL		If set to TRUE, all SSL errors are ignored.
+	 * @param connectionTimeOut	Optional. In milliseconds. The max time to wait to stablish a connection.
+	 *                          A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                          the timeout (usually 60 seconds).
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
+	 * @return
+	 * @throws ConnectTimeoutException
+	 * @throws SocketTimeoutException
+	 * @throws Exception	In case of any error.
+	 */
+	public static String doPost(String url, String data, Map<String, String> headersData, boolean ignoreSSL, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		String res;
+
+		String theJSON = data;
+		if(LOG_ENABLE)
+			Log.d(TAG, "POST: " + theJSON);
+
+		URL urlPath = null;
+		try {
+			urlPath = new URL(url);
+			res = ToolBox.net_httpclient_doAction(HTTP_METHOD.POST, urlPath.toString(), theJSON, headersData, ignoreSSL, connectionTimeOut, readTimeOut);
+
+		} catch (Exception e) {
+			if(LOG_ENABLE)
+				Log.e(TAG, "POST: Error sending data (POS) to service url '"+urlPath.toString()+"': "+e.getMessage(),e);
+
+			throw e;
+		}
+
+		return res;
+	}
+	
+	/**
+	 * A POST operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
 	 * 
 	 * @param url			Url for the POST operation 
 	 * @param data			JSON data
@@ -104,9 +146,30 @@ public class HttpOperations {
 	public static String doPost(String url, String data, Map<String, String> headersData) throws ConnectTimeoutException, SocketTimeoutException, Exception{
 		return doPost(url, data, headersData, false);
 	}
+
+	/**
+	 * A POST operation.
+	 *
+	 * @param url			Url for the POST operation
+	 * @param data			JSON data
+	 * @param connectionTimeOut	Optional. In milliseconds. The max time to wait to stablish a connection.
+	 *                          A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                          the timeout (usually 60 seconds).
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
+	 * @return
+	 * @throws ConnectTimeoutException
+	 * @throws SocketTimeoutException
+	 * @throws Exception	In case of any error.
+	 */
+	public static String doPost(String url, String data, Map<String, String> headersData, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		return doPost(url, data, headersData, false, connectionTimeOut, readTimeOut);
+	}
 	
 	/**
-	 * A GET operation.
+	 * A GET operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
 	 * 
 	 * @param url			Url for the POST operation
 	 * @param headersData	Optional. Headers for the request.
@@ -143,9 +206,55 @@ public class HttpOperations {
 		
 		return res;
 	}
-	
+
 	/**
 	 * A GET operation.
+	 *
+	 * @param url			Url for the POST operation
+	 * @param headersData	Optional. Headers for the request.
+	 * @param ignoreSSL		If set to TRUE, all SSL errors are ignored.
+	 * @param connectionTimeOut	Optional. In milliseconds. The max time to wait to stablish a connection.
+	 *                          A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                          the timeout (usually 60 seconds).
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
+	 * @return
+	 * @throws ConnectTimeoutException
+	 * @throws SocketTimeoutException
+	 * @throws Exception
+	 */
+	public static String doGet(String url, Map<String, String> headersData, boolean ignoreSSL, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		String res = null;
+
+		if(LOG_ENABLE)
+			Log.d(TAG, "GET: " + url);
+
+		URL urlPath = null;
+		try {
+			urlPath = new URL(url);
+			res = ToolBox.net_httpclient_doAction(HTTP_METHOD.GET, urlPath.toString(), null, headersData, ignoreSSL, connectionTimeOut, readTimeOut);
+
+		} catch (ConnectTimeoutException e) {
+			if(LOG_ENABLE)
+				Log.e(TAG, "GET: Error doing get to service url '"+urlPath.toString()+"': "+e.getMessage(),e);
+			throw e;
+		} catch (SocketTimeoutException e) {
+			if(LOG_ENABLE)
+				Log.e(TAG, "GET: Error doing get to service url '"+urlPath.toString()+"': "+e.getMessage(),e);
+			throw e;
+		} catch (Exception e){
+			if(LOG_ENABLE)
+				Log.e(TAG, "GET: Error doing get to service url '"+urlPath.toString()+"': "+e.getMessage(),e);
+			throw e;
+		}
+
+		return res;
+	}
+	
+	/**
+	 * A GET operation. Default connection timeout is 5 seconds and
+	 * default read timeout is 10 seconds.
 	 * 
 	 * @param url			Url for the POST operation
 	 * @param headersData	Optional. Headers for the request.
@@ -156,6 +265,26 @@ public class HttpOperations {
 	 */
 	public static String doGet(String url, Map<String, String> headersData) throws ConnectTimeoutException, SocketTimeoutException, Exception{
 		return doGet(url, headersData, false);
+	}
+
+	/**
+	 * A GET operation.
+	 *
+	 * @param url			Url for the POST operation
+	 * @param headersData	Optional. Headers for the request.
+	 * @param connectionTimeOut	Optional. In milliseconds. The max time to wait to stablish a connection.
+	 *                          A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                          the timeout (usually 60 seconds).
+	 * @param readTimeOut	Optional. In Milliseconds. The max time to wait to get data response from the server.
+	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
+	 *                      the timeout.
+	 * @return
+	 * @throws ConnectTimeoutException
+	 * @throws SocketTimeoutException
+	 * @throws Exception
+	 */
+	public static String doGet(String url, Map<String, String> headersData, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+		return doGet(url, headersData, false, connectionTimeOut, readTimeOut);
 	}
 	
 }

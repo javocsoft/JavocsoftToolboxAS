@@ -127,8 +127,13 @@ public class CustomCampaignTrackingReceiver extends BroadcastReceiver {
     		Thread tAck = new Thread(onCampaignInfoReceivedCallback);
     		tAck.start();
         }
-        
-        // When you're done, pass the intent to the Google Analytics receiver.
+
+        //In Android 26+ the service CampaignTrackingService is deprecated, declaring it
+        //in your AndroidManifest.xml will trigger IllegalStateException in the application
+        //that can cause the application to be closed. Use the service programmatically and
+        //only after checking we are before Android 16.
+        //See:
+        // https://stackoverflow.com/questions/46262082/google-analytics-service-intent-crashes-on-android-oreo
         new CampaignTrackingReceiver().onReceive(context, intent);
     }
     

@@ -110,4 +110,42 @@ public class AnalyticsModule {
         mFirebaseAnalytics.logEvent((eventName!=null?eventName:"ga_event"), params);
     }
 
+    /**
+     * Logs an application custom event into Firebase AnalyticsModule.
+     *
+     * @param eventName Optional. The event name. If null, "ga_event" is used.
+     * @param category  The custom category of the event.
+     * @param action    The custom action of the event.
+     * @param label     The custom label for the event.
+     * @param value     Optional. A value for the event.
+     * @param parameters Optional. Set any optional parameter for the event.
+     */
+    public void logEventWithExtraParameters(String eventName, String category, String action, String label, Long value, Bundle parameters) {
+        Bundle params = new Bundle();
+        if(parameters!=null)
+            params.putAll(parameters);
+        params.putString("category", category);
+        params.putString("action", action);
+        params.putString("label", label);
+        if(value!=null)
+            params.putLong("value", value);
+
+        mFirebaseAnalytics.logEvent((eventName!=null?eventName:"ga_event"), params);
+    }
+
+    /**
+     * When you need an event not covered by standard event formats.
+     *
+     * @param eventName Your event name
+     * @param parameters    Optional. Some parameters of the custom event.
+     */
+    public void logCustomEvent(String eventName, Bundle parameters) {
+        if(eventName!=null && eventName.length()>0) {
+            Bundle params = new Bundle();
+            if (parameters != null)
+                params.putAll(parameters);
+
+            mFirebaseAnalytics.logEvent(eventName, params);
+        }
+    }
 }

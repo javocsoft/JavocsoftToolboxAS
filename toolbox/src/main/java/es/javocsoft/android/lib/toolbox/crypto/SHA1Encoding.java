@@ -19,14 +19,24 @@ public class SHA1Encoding {
 	 * @throws SHA1EncodingException
 	 */
 	public static String getSHA1(String data) throws SHA1EncodingException {
-		
-	    MessageDigest crypt;
+
+		MessageDigest crypt;
 		try {
 			crypt = MessageDigest.getInstance("SHA-1");
 			crypt.reset();
-		    crypt.update(data.getBytes("UTF-8"));
-		    
-		    return new BigInteger(1, crypt.digest()).toString(16);
+			crypt.update(data.getBytes("UTF-8"));
+
+			//convert the byte to hex format method 1
+			StringBuffer sb = new StringBuffer();
+			byte[] hashBytes = crypt.digest();
+			for (int i = 0; i < hashBytes.length; i++) {
+				sb.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			return sb.toString();
+
+			//This way has a BUG consisting in leading zeroes are removed.
+			//return new BigInteger(1, crypt.digest()).toString(16); //Missines leading zeroes
+
 		} catch (NoSuchAlgorithmException e) {
 			throw new SHA1EncodingException("Error generating SHA-1 hash from string (NoSuchAlgorithmException).", e);
 		} catch (UnsupportedEncodingException e) {

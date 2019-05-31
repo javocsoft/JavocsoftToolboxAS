@@ -127,7 +127,32 @@ public class FirebaseCustomNotificationReceiver extends FirebaseMessagingService
             processBundleForNotification(extras);
 
             //1.- Generate the notification in the task bar.
-            generateNotification(getApplicationContext(), extras);
+            if(extras.get(NotificationModule.FIREBASE_NOTIFICATION_CONTROL_TYPE_FLAG_PARAM_KEY)==null) {
+                //Normal notification, show it.
+                generateNotification(getApplicationContext(), extras);
+            }else{
+                //Should be a Control Notification but we check for the correct value and an available event
+                try{
+                    String controlTypeEvent = null;
+                    Boolean controlType = false;
+
+                    controlType = Boolean.parseBoolean((String) extras.get(NotificationModule.FIREBASE_NOTIFICATION_CONTROL_TYPE_FLAG_PARAM_KEY));
+                    if(extras.get(NotificationModule.FIREBASE_NOTIFICATION_CONTROL_TYPE_EVENT_PARAM_KEY)!=null){
+                        controlTypeEvent = (String)extras.get(NotificationModule.FIREBASE_NOTIFICATION_CONTROL_TYPE_EVENT_PARAM_KEY);
+                    }
+
+                    if(controlType && controlTypeEvent!=null){
+                        //It is a Notification control. We do not show the notification
+                    }else{
+                        //Invalid control notification, we show the notification.
+                        generateNotification(getApplicationContext(), extras);
+                    }
+
+                }catch(Exception e){
+                    Log.w(NotificationModule.TAG, "Error parsing 'controlType'/'controlTypeEvent' params from data payload (" + e.getMessage() + "'. We display the notification.");
+                    generateNotification(getApplicationContext(), extras);
+                }
+            }
 
             //2.- Run the runnable set for a new notification received event.
             launchOnNewNotificationEventRunnable(getApplicationContext(), extras);
@@ -309,7 +334,7 @@ public class FirebaseCustomNotificationReceiver extends FirebaseMessagingService
                     Constructor<?> cons = c.getConstructor();
                     Object onNewNotificationRunnableObject = cons.newInstance();
                     NotificationModule.doWhenNotificationRunnable = (OnNewNotificationCallback)onNewNotificationRunnableObject;
-                    NotificationModule.doWhenNotificationRunnable.context = context.getApplicationContext();
+                    NotificationModule.doWhenNotificationRunnable.context = (context.getApplicationContext()!=null?context.getApplicationContext():context);
 
                 }catch(Exception e) {
                     if(NotificationModule.LOG_ENABLE)
@@ -320,6 +345,8 @@ public class FirebaseCustomNotificationReceiver extends FirebaseMessagingService
                 if(NotificationModule.LOG_ENABLE)
                     Log.i(NotificationModule.TAG,"No Runnable specified for a new notification received event.");
             }
+        }else{
+            NotificationModule.doWhenNotificationRunnable.context = (context.getApplicationContext()!=null?context.getApplicationContext():context);
         }
 
         //Do something when new notification arrives.
@@ -327,6 +354,7 @@ public class FirebaseCustomNotificationReceiver extends FirebaseMessagingService
                 !NotificationModule.doWhenNotificationRunnable.isAlive()){
             //Set the intent extras
             NotificationModule.doWhenNotificationRunnable.setNotificationBundle(extras);
+            NotificationModule.doWhenNotificationRunnable.context = (context.getApplicationContext()!=null?context.getApplicationContext():context);
             //Launch the thread
             Thread t = new Thread(NotificationModule.doWhenNotificationRunnable);
             t.start();

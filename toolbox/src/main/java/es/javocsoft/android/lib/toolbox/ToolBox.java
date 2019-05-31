@@ -2047,18 +2047,24 @@ public final class ToolBox {
 	  * @param type Toast type {@link TOAST_TYPE} if not using default Toast.
 	  */
 	 @Deprecated
-     public static void backPressedAction(Activity context, long backPressTimeInterval, String message, boolean defaultToast, TOAST_TYPE type) {
+     public static Toast backPressedAction(Activity context, long backPressTimeInterval, String message, boolean defaultToast, TOAST_TYPE type) {
+	 	Toast toast = null;
+
         if(mBackPressed!=0 && (mBackPressed + backPressTimeInterval) > System.currentTimeMillis()) {
         	mBackPressed = 0l;
         	context.finish();
         }else{
         	if(defaultToast) {
-        		Toast.makeText(context.getBaseContext(), message, Toast.LENGTH_SHORT).show();
+        		toast = Toast.makeText(context.getBaseContext(), message, Toast.LENGTH_SHORT);
         	}else{
-        		toast_createCustomToast(context, message, type, false);        		
+        		toast = toast_createCustomToast(context, message, type, false, true, false);
         	}
+
+        	toast.show();
         }
         mBackPressed = System.currentTimeMillis();
+
+        return toast;
      }
 
 	/**
@@ -2072,23 +2078,50 @@ public final class ToolBox {
 	 * @param message	The message to when pressed
 	 * @param defaultToast	Set to true to use Android default native toast message style
 	 * @param type	Toast type {@link TOAST_TYPE} if not using default Toast.
+	 * @return A map with the last time back was pressed and the toast, if should be one for that time.
 	 */
-	public static void backPressedAction(Activity context, long backLastPressed, long backPressTimeInterval, String message, boolean defaultToast, TOAST_TYPE type) {
+	public static Map<Long, Toast> backPressedAction(Activity context, long backLastPressed, long backPressTimeInterval, String message, boolean defaultToast, TOAST_TYPE type) {
+		Map<Long, Toast> res = null;
+		Toast toast = null;
+
+		res = new HashMap<>();
 		if(backLastPressed!=0 && (backLastPressed + backPressTimeInterval) > System.currentTimeMillis()) {
 			backLastPressed = 0l;
+			res.put(backLastPressed, null);
 			context.finish();
 		}else{
 			if(defaultToast) {
-				Toast.makeText(context.getBaseContext(), message, Toast.LENGTH_SHORT).show();
+				toast = Toast.makeText(context.getBaseContext(), message, Toast.LENGTH_SHORT);
 			}else{
-				toast_createCustomToast(context, message, type, false);
+				toast = toast_createCustomToast(context, message, type, false, true, false);
 			}
+
+			toast.show();
+
+			backLastPressed = System.currentTimeMillis();
+			res.put(backLastPressed, toast);
 		}
-		backLastPressed = System.currentTimeMillis();
+
+		return res;
 	}
      
      /** Custom Toast types */
      public static enum TOAST_TYPE {INFO, WARNING, ERROR, REMINDER};
+
+	/**
+	 * Creates a custom Toast. The toast is automatically shown once is created.
+	 *
+	 * @param context	The context
+	 * @param message	The message.
+	 * @param type		The custom toast type {@link TOAST_TYPE}
+	 * @param centerOnScreen	Set to TRUE to center in the middle of
+	 * 						the screen.
+	 * @param shortTime Set to TRUE to show the toast for a small period of time instead long one.
+	 * @return The created Toast.
+	 */
+	public static Toast toast_create(Context context, String message, TOAST_TYPE type, boolean centerOnScreen, boolean shortTime) {
+		return toast_create(context, message, type, centerOnScreen, shortTime, true);
+	}
 
 	/**
 	 * Creates a custom Toast.
@@ -2099,9 +2132,11 @@ public final class ToolBox {
 	 * @param centerOnScreen	Set to TRUE to center in the middle of
 	 * 						the screen.
 	 * @param shortTime Set to TRUE to show the toast for a small period of time instead long one.
+	 * @param showToast Set to TRUE to make the toast visible once is created.
+	 * @return The created Toast.
 	 */
 	@SuppressLint("InflateParams")
-	public static void toast_create(Context context, String message, TOAST_TYPE type, boolean centerOnScreen, boolean shortTime) {
+	public static Toast toast_create(Context context, String message, TOAST_TYPE type, boolean centerOnScreen, boolean shortTime, boolean showToast) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
 		View linearLayout = inflater.inflate(R.layout.toast_view, null);
 		//View linearLayout = inflater.inflate(R.layout.toast_view, (ViewGroup) context.findViewById(R.id.toast_layout_root));
@@ -2138,7 +2173,10 @@ public final class ToolBox {
 		}
 		toast.setDuration((shortTime?Toast.LENGTH_SHORT:Toast.LENGTH_LONG));
 		toast.setView(linearLayout);
-		toast.show();
+		if(showToast)
+			toast.show();
+
+		return toast;
 	}
 
      /**
@@ -2149,11 +2187,12 @@ public final class ToolBox {
       * @param type		The custom toast type {@link TOAST_TYPE}
       * @param centerOnScreen	Set to TRUE to center in the middle of 
       * 						the screen.
+	  * @return The created Toast.
       */
-     @SuppressLint("InflateParams")
-	 public static void toast_createCustomToast(Context context, String message, TOAST_TYPE type, boolean centerOnScreen) {
-		 toast_create(context, message, type, centerOnScreen, false);
-     }
+      @SuppressLint("InflateParams")
+	  public static Toast toast_createCustomToast(Context context, String message, TOAST_TYPE type, boolean centerOnScreen) {
+		 return toast_create(context, message, type, centerOnScreen, false);
+      }
 
 	/**
 	 * Creates a custom Toast.
@@ -2164,11 +2203,12 @@ public final class ToolBox {
 	 * @param centerOnScreen	Set to TRUE to center in the middle of
 	 * 						the screen.
 	 * @param shortTime Set to TRUE to show the toast for a small period of time instead long one.
+	 * @return The created Toast.
 	 */
-	@SuppressLint("InflateParams")
-	public static void toast_createCustomToast(Context context, String message, TOAST_TYPE type, boolean centerOnScreen, boolean shortTime) {
-		toast_create(context, message, type, centerOnScreen, shortTime);
-	}
+	 @SuppressLint("InflateParams")
+	 public static Toast toast_createCustomToast(Context context, String message, TOAST_TYPE type, boolean centerOnScreen, boolean shortTime, boolean showToast) {
+		return toast_create(context, message, type, centerOnScreen, shortTime, showToast);
+	 }
      
 	 /**
 	  * Creates an exit popup dialog.
@@ -2491,7 +2531,7 @@ public final class ToolBox {
 			}
 			msg.show();
 		}else{
-			toast_createCustomToast(context, message, customToastType, centerOnScreen, shortTime);
+			toast_createCustomToast(context, message, customToastType, centerOnScreen, shortTime, true);
 		}
 	}
 	 
@@ -4681,10 +4721,13 @@ public final class ToolBox {
     	    	
     	if (wakeLock != null) wakeLock.release();
 
+    	String wkupTag = application_nameInfo(ctx, ctx.getPackageName()) +
+				":" + "toolbox_library_wakeup";
+
         PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
         wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |
                 PowerManager.ACQUIRE_CAUSES_WAKEUP |
-                PowerManager.ON_AFTER_RELEASE, "javocsoft_library_wakeup");
+                PowerManager.ON_AFTER_RELEASE, wkupTag);
         wakeLock.acquire();
     }
     
@@ -4735,7 +4778,8 @@ public final class ToolBox {
         if(switchOnDevice) {
         	flags = flags | PowerManager.ACQUIRE_CAUSES_WAKEUP;
         }
-        String wkName = "javocsoft_library_wakeup";
+		String wkName = application_nameInfo(ctx, ctx.getPackageName()) +
+				":" + "toolbox_library_wakeup";
         if(wakeUpName!=null && wakeUpName.length()>0)
         	wkName = wakeUpName;
         
@@ -4873,7 +4917,7 @@ public final class ToolBox {
 	 *                      you can get the server certificate to connect with with the command line
 	 *                      "openssl s_client -debug -connect server:443" (without the quotes).
 	 * @return The content of the request if there is one.
-	 * @throws Exception
+	 * @throws ConnectTimeoutException, SocketTimeoutException, Exception
 	 */
 	@SuppressWarnings("deprecation")
 	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonDataKey, String jsonData, Map<String, String> headers, boolean ignoreSSL, Context context, String certFile) throws ConnectTimeoutException, SocketTimeoutException, Exception {
@@ -5081,7 +5125,7 @@ public final class ToolBox {
 	 * @param ignoreSSL		If set to TRUE, we ignore any error relative to 
 	 * 						certificates when accessing with HTTPS.
 	 * @return The content of the request if there is one.
-	 * @throws Exception
+	 * @throws ConnectTimeoutException, SocketTimeoutException, Exception
 	 */
 	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonData, Map<String, String> headers, boolean ignoreSSL) throws ConnectTimeoutException, SocketTimeoutException, Exception{
 		return net_httpclient_doAction(method, url, null, jsonData, headers, ignoreSSL);
@@ -5104,7 +5148,7 @@ public final class ToolBox {
 	 *                      A value of 0 means no max time, infinite. Leave blank to make system handles
 	 *                      the timeout.
 	 * @return The content of the request if there is one.
-	 * @throws Exception
+	 * @throws ConnectTimeoutException, SocketTimeoutException, Exception
 	 */
 	public static String net_httpclient_doAction(HTTP_METHOD method, String url, String jsonData, Map<String, String> headers, boolean ignoreSSL, Integer connectionTimeOut, Integer readTimeOut) throws ConnectTimeoutException, SocketTimeoutException, Exception{
 		return net_httpclient_doAction(method, url, null, jsonData, headers, ignoreSSL, connectionTimeOut, readTimeOut);
@@ -5524,10 +5568,10 @@ public final class ToolBox {
         
         return readbytes;
     }
-		
+
 	/**
 	 * Saves data to the application internal folder.
-	 * 
+	 *
 	 * @param context
 	 * @param fileName
 	 * @param data
@@ -5539,9 +5583,10 @@ public final class ToolBox {
 		      * the ActivityContext provides, to
 		      * protect your file from others and
 		      * This is done for security-reasons.
-		      * We chose MODE_WORLD_READABLE, because
-		      *  we have nothing to hide in our file */             
-		      FileOutputStream fOut = context.openFileOutput(fileName, Context.MODE_WORLD_READABLE);
+		      * We choose MODE_WORLD_READABLE, because
+		      * we have nothing to hide in our file. Since
+		      * Android 7 is no longer supported. */
+		      FileOutputStream fOut = context.openFileOutput(fileName, Context.MODE_PRIVATE);
 			   
 		      // Write the string to the file
 		      fOut.write(data);
@@ -5586,7 +5631,7 @@ public final class ToolBox {
 	 * 
 	 * @param context
 	 * @param fileName
-	 * @throws Exception
+	 * @throws Exception In case of any error.
 	 */
 	public static void storage_deleteDataFromInternalStorage(Context context, String fileName) throws Exception{
 			
@@ -5837,7 +5882,7 @@ public final class ToolBox {
 	 * Saves a prefrence. You can remove it setting its value to null.
 	 * 
 	 * @param ctx
-	 * @param prefName
+	 * @param prefName	If null, default application preferences file is used.
 	 * @param key
 	 * @param valueType
 	 * @param value
@@ -5845,9 +5890,12 @@ public final class ToolBox {
 	 */
 	public static boolean prefs_savePreference(Context ctx, String prefName, String key, Class<?> valueType, Object value){
 		boolean res = false;
-		
-		SharedPreferences prefs = ctx.getSharedPreferences(
-				prefName, Context.MODE_PRIVATE);
+
+		SharedPreferences prefs = null;
+		if(prefName!=null && prefName.length()>0) {
+			prefs = ctx.getApplicationContext().getSharedPreferences(
+					prefName, Context.MODE_PRIVATE);
+		}
 		
 		if(prefs==null) //In case of a Service, for example, we take the default preferences. 
 			prefs  = PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -5918,14 +5966,17 @@ public final class ToolBox {
 	 * Gets a value from given key in the preferences.
 	 * 
 	 * @param ctx
-	 * @param prefName
+	 * @param prefName	If null, default application preferences file is used.
 	 * @param key
 	 * @param valueType
 	 * @return
 	 */
 	public static Object prefs_readPreference(Context ctx, String prefName, String key, Class<?> valueType){
-		SharedPreferences prefs = ctx.getSharedPreferences(
-				prefName, Context.MODE_PRIVATE);
+		SharedPreferences prefs = null;
+		if(prefName!=null && prefName.length()>0) {
+			prefs = ctx.getApplicationContext().getSharedPreferences(
+					prefName, Context.MODE_PRIVATE);
+		}
 		
 		if(prefs==null) //In case of a Service, for example, we take the default preferences. 
 			prefs  = PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -5955,13 +6006,16 @@ public final class ToolBox {
 	 * Tells if the preferemce exists.
 	 * 
 	 * @param ctx
-	 * @param prefName
+	 * @param prefName	If null, default application preferences file is used.
 	 * @param key
 	 * @return
 	 */
 	public static Boolean prefs_existsPref(Context ctx, String prefName, String key){
-		SharedPreferences prefs = ctx.getSharedPreferences(
-				prefName, Context.MODE_PRIVATE);
+		SharedPreferences prefs = null;
+		if(prefName!=null && prefName.length()>0) {
+			prefs = ctx.getApplicationContext().getSharedPreferences(
+					prefName, Context.MODE_PRIVATE);
+		}
 		
 		if(prefs==null) //In case of a Service, for example, we take the default preferences. 
 			prefs  = PreferenceManager.getDefaultSharedPreferences(ctx);

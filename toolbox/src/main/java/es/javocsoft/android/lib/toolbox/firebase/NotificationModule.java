@@ -141,7 +141,16 @@ public class NotificationModule {
 	public static final String ANDROID_NOTIFICATION_TAG_KEY = "tag";
 	public static final String ANDROID_NOTIFICATION_TIT_KEY = "title";
 
-		
+	/** We can receive a notification that is not intended to be show, it is a "Control Notification" also
+	 * known as Data Notifications. Put this flag with the "controlTypeEvent" to manage control events in
+	 * your application. The parameter "controlTypeExtra" allows to send some extra data for the event, could
+	 * be an encoded JSON. When a data notification (control notification) is received, the Firebase notification
+	 * module does not show the notification. */
+	public static final String FIREBASE_NOTIFICATION_CONTROL_TYPE_FLAG_PARAM_KEY = "controlType";
+	public static final String FIREBASE_NOTIFICATION_CONTROL_TYPE_EVENT_PARAM_KEY = "controlTypeEvent";
+	public static final String FIREBASE_NOTIFICATION_CONTROL_TYPE_EXTRA_PARAM_KEY = "controlTypeExtra";
+
+
 	private final static String APP_NOTIFICATION_ACTION_KEY = "<app_package>";
 	/** Custom intent used to show the alert in the UI about a received push. */
     public static String SHOW_NOTIFICATION_ACTION = "com.google.android.firebase."+ APP_NOTIFICATION_ACTION_KEY+".DISPLAY_MESSAGE";

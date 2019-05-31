@@ -8,7 +8,7 @@ apply plugin: "com.jfrog.bintray"
 // (change to a new version every new library release)
 //
 // 1.- Change version to a new one.
-version = "1.4.3"
+version = "1.5.1"
 // 1.- First, run "Gradle->build->assembleRelease"
 // 2.- Second run "Gradle->Other->Install" to generate Maven stuff.
 //     (it will run task javadocJar and sourcesJar leaving artifacts in $buildDir/libs)
@@ -16,17 +16,17 @@ version = "1.4.3"
 // 3.- Check in https://bintray.com/javocsoft/maven/es.javocsoft%3Ajavocsofttoolbox
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         //Google Play services and Firebase for Android will support API level 14 at minimum
         //https://android-developers.googleblog.com/2016/11/google-play-services-and-firebase-for-android-will-support-api-level-14-at-minimum.html
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 27
         //https://developer.android.com/studio/publish/versioning.html
-        versionCode 26
-        versionName "1.4.3"
+        versionCode 34
+        versionName "1.5.1"
         //multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //signingConfig signingConfigs.config
@@ -58,15 +58,15 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
     // Google Play compatibility support library
-    compile 'com.android.support:appcompat-v7:26.0.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
 
-    compile 'com.firebase:firebase-jobdispatcher:0.8.5'
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
 
     // Google Play services SDK
     // (https://developers.google.com/android/guides/overview)
@@ -76,27 +76,32 @@ dependencies {
     // GoogleApiClient: https://developers.google.com/android/reference/com/google/android/gms/common/api/GoogleApiClient
     //compile 'com.google.android.gms:play-services:11.0.2'
 
-    compile 'com.google.android.gms:play-services-base:11.0.2'
-    compile 'com.google.android.gms:play-services-analytics:11.0.2'
-    compile 'com.google.android.gms:play-services-gcm:11.0.2'
-    compile 'com.google.firebase:firebase-messaging:11.0.2'
-    compile 'com.google.firebase:firebase-core:11.0.2'
-    compile 'com.google.android.gms:play-services-drive:11.0.2'
-    compile 'com.google.android.gms:play-services-location:11.0.2'
-    compile 'com.google.android.gms:play-services-maps:11.0.2'
-    compile 'com.google.android.gms:play-services-ads:11.0.2'
-    //compile 'com.google.android.gms:play-services-places:11.0.2'
-    //compile 'com.google.android.gms:play-services-auth:11.0.2'
+    implementation 'com.google.android.gms:play-services-base:11.0.2'
+    implementation 'com.google.android.gms:play-services-analytics:11.0.2'
+    implementation 'com.google.android.gms:play-services-gcm:11.0.2'
+    implementation 'com.google.firebase:firebase-messaging:11.0.2'
+    implementation 'com.google.firebase:firebase-core:11.0.2'
+    implementation 'com.google.android.gms:play-services-drive:11.0.2'
+    implementation 'com.google.android.gms:play-services-location:11.0.2'
+    implementation 'com.google.android.gms:play-services-maps:11.0.2'
+    implementation 'com.google.android.gms:play-services-ads:11.0.2'
+    //implementation 'com.google.android.gms:play-services-places:11.0.2'
+    //implementation 'com.google.android.gms:play-services-auth:11.0.2'
+    implementation 'com.android.support:customtabs:27.1.1';
+    // https://mvnrepository.com/artifact/com.android.support/support-media-compat
+    implementation 'com.android.support:support-media-compat:27.1.1'
+    implementation 'com.android.support:support-v4:27.1.1'
+
 
     //Facebook SDK
     // (https://developers.facebook.com/docs/android/getting-started?locale=es_ES)
-    compile group: 'com.facebook.android', name: 'facebook-android-sdk', version: '3.20.0'
+    implementation group: 'com.facebook.android', name: 'facebook-android-sdk', version: '3.20.0'
 
     // Other external libraries required
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.1'
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.5'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    implementation group: 'commons-codec', name: 'commons-codec', version: '1.5'
 
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 
     // Testing-only dependencies
     // Force usage of support annotations in the test app, since it is internally used by the runner module.
@@ -108,6 +113,7 @@ dependencies {
     androidTestCompile 'com.android.support:support-annotations:23.1.1'*/
 }
 
+configurations.provided.canBeResolved = true
 
 // Configuration to be able to generate POM file and upload to JCenter
 def siteUrl = 'https://github.com/javocsoft/JavocsoftToolboxAS'      // Homepage URL of the library
@@ -175,10 +181,12 @@ import java.util.zip.ZipFile
 
 
 task javadoc(type: Javadoc) {
+    failOnError false
+
     source = android.sourceSets.main.java.srcDirs
     //classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     classpath += configurations.compile
-    //classpath += configurations.provided //Not available in Gradle 3
+    classpath += configurations.provided //Not available in Gradle 3
     //FIX To avoid issues getting R class.
     classpath += files("build/generated/source/r/release")
     classpath += files("build/generated/source/buildConfig/release")
@@ -204,7 +212,6 @@ task javadoc(type: Javadoc) {
             }
         }
     }
-
 }
 // Utility method to extract only one entry in a zip file
 private def extractEntry(archive, entryPath, outputPath) {
@@ -280,9 +287,6 @@ task addJavaDoc {
         }
     }
 }
-
-
-
 
 //Load properties of the project
 Properties properties = new Properties()
